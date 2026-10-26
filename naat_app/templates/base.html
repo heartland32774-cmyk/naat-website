@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Naat Website{% endblock %}</title>
+    <!-- Yahan Title Change kiya hai -->
+    <title>{% block title %}Noor-e-Naat{% endblock %}</title>
     
     <!-- Google Fonts for Urdu (Nastaliq) -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&display=swap" rel="stylesheet">
@@ -20,7 +21,6 @@
             flex-direction: column; 
             min-height: 100vh; 
         }
-        /* Content ko push karne ke liye taake footer hamesha neeche rahe */
         .content-wrapper { flex: 1; }
 
         .navbar { background-color: #ffffff; border-bottom: 1px solid #e0e0e0; padding: 12px 0; }
@@ -30,7 +30,6 @@
         
         .urdu-text { font-family: 'Noto Nastaliq Urdu', serif; direction: rtl; }
 
-        /* === FOOTER DESIGN === */
         .footer { background-color: #1a1a1a; color: #d1d5db; padding: 50px 0 20px 0; margin-top: auto; }
         .footer h5 { color: #ffffff; font-weight: 700; margin-bottom: 20px; font-size: 16px; }
         .footer a { color: #d1d5db; text-decoration: none; transition: 0.2s; display: block; margin-bottom: 10px; font-size: 14px; }
@@ -47,7 +46,8 @@
     <!-- Universal Navbar -->
     <nav class="navbar navbar-expand-lg sticky-top shadow-sm">
         <div class="container-fluid px-4">
-            <a class="navbar-brand" href="/"><i class="fa-solid fa-moon me-2"></i>Naat Website</a>
+            <!-- Yahan Navbar ka Naam Change kiya hai -->
+            <a class="navbar-brand" href="/"><i class="fa-solid fa-moon me-2"></i>Noor-e-Naat</a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -64,7 +64,6 @@
                 
                 <div class="d-flex align-items-center gap-2">
                     {% if user.is_authenticated %}
-                        <!-- User Dropdown -->
                         <div class="dropdown">
                             <button class="btn btn-outline-success btn-sm rounded-pill px-3 dropdown-toggle" type="button" data-bs-toggle="dropdown">
                                 <i class="fa-solid fa-user-circle me-1"></i> {{ user.username }}
@@ -84,7 +83,7 @@
         </div>
     </nav>
 
-    <!-- Main Content Wrapper (Taake footer neeche rahe) -->
+    <!-- Main Content Wrapper -->
     <div class="content-wrapper">
         {% block content %}{% endblock %}
     </div>
@@ -94,7 +93,8 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-4 mb-4">
-                    <h5><i class="fa-solid fa-moon me-2"></i>Naat Website</h5>
+                    <!-- Yahan Footer ka Naam Change kiya hai -->
+                    <h5><i class="fa-solid fa-moon me-2"></i>Noor-e-Naat</h5>
                     <p style="font-size: 14px; line-height: 1.6;">Listen to the most beautiful and soulful Naats from your favorite Naat Khawans. A platform dedicated to spiritual peace and devotion.</p>
                 </div>
                 
@@ -119,7 +119,8 @@
             </div>
             
             <div class="footer-bottom">
-                &copy; 2026 Naat Website. All rights reserved. | Made with <i class="fa-solid fa-heart text-danger"></i> for Naat Lovers.
+                <!-- Yahan Copyright Change kiya hai -->
+                &copy; 2026 Noor-e-Naat. All rights reserved. | Made with <i class="fa-solid fa-heart text-danger"></i> for Naat Lovers.
             </div>
         </div>
     </footer>
