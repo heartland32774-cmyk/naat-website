@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+{% block title %}{{ naat.title }} | Naat Website{% endblock %}
+
+{% block extra_css %}
+    .main-card { background: #fff; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); padding: 40px; margin-top: 30px; text-align: center; }
+    .naat-title { font-size: 32px; font-weight: 800; color: #1e7d5a; margin-bottom: 15px; }
+    .artist-badge { display: inline-flex; align-items: center; background: #f1f5f9; border: 1px solid #e2e8f0; padding: 8px 20px; border-radius: 50px; font-size: 15px; font-weight: 600; color: #475569; text-decoration: none; margin-bottom: 30px; }
+    .artist-badge:hover { background: #e2e8f0; color: #1e7d5a; }
+    .play-area { background: #f8fafc; border-radius: 15px; padding: 40px 20px; margin-bottom: 30px; }
+    .btn-play-big { background: #1e7d5a; color: white; border: none; padding: 15px 40px; border-radius: 50px; font-size: 20px; font-weight: 700; display: inline-flex; align-items: center; gap: 10px; transition: 0.3s; box-shadow: 0 8px 20px rgba(30,125,90,0.3); }
+    .btn-play-big:hover { background: #166347; transform: scale(1.05); color: white; }
+    .action-icons { display: flex; justify-content: center; gap: 15px; margin-top: 25px; }
+    .action-btn { width: 50px; height: 50px; border-radius: 12px; border: 1.5px solid #e2e8f0; background: white; color: #64748b; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; transition: 0.2s; text-decoration: none; }
+    .action-btn:hover { border-color: #1e7d5a; color: #1e7d5a; transform: translateY(-3px); }
+    .action-btn.fav { color: #ef4444; border-color: #fca5a5; background: #fef2f2; }
+    .stats-row { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-top: 20px; }
+    .stat-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 15px; padding: 20px; width: 140px; text-align: center; }
+    .stat-box i { color: #94a3b8; font-size: 18px; margin-bottom: 8px; }
+    .stat-box .label { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
+    .stat-box .value { font-size: 16px; font-weight: 800; color: #1e7d5a; margin-top: 5px; }
+    .related-section { margin-top: 40px; }
+    .related-title { font-weight: 700; color: #333; margin-bottom: 20px; border-left: 4px solid #1e7d5a; padding-left: 10px; }
+    .sticky-player { position: fixed; bottom: 0; left: 0; width: 100%; background: #0f172a; color: white; padding: 15px 0; box-shadow: 0 -5px 20px rgba(0,0,0,0.2); z-index: 1050; display: flex; align-items: center; }
+    .player-art { width: 50px; height: 50px; background: #eab308; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #0f172a; font-weight: bold; margin-right: 15px; }
+    .player-info h6 { margin: 0; font-size: 15px; font-weight: 700; color: #fff; }
+    .player-info small { color: #94a3b8; font-size: 12px; }
+    .player-controls { display: flex; align-items: center; justify-content: center; gap: 20px; }
+    .play-pause-btn { width: 45px; height: 45px; border-radius: 50%; background: #eab308; border: none; color: #0f172a; font-size: 20px; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+    .play-pause-btn:hover { transform: scale(1.1); }
+    .player-progress { display: flex; align-items: center; gap: 10px; width: 100%; }
+    .player-progress span { font-size: 12px; color: #94a3b8; width: 35px; }
+    .progress-bar-custom { height: 5px; background: #334155; border-radius: 5px; flex-grow: 1; position: relative; cursor: pointer; }
+    .progress-fill { height: 100%; background: #eab308; border-radius: 5px; width: 0%; }
+    .volume-container { display: flex; align-items: center; gap: 10px; }
+    .volume-container i { cursor: pointer; font-size: 18px; }
+    input[type=range] { -webkit-appearance: none; width: 80px; background: transparent; cursor: pointer; }
+    input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 12px; width: 12px; border-radius: 50%; background: #eab308; margin-top: -4px; }
+    input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: #334155; border-radius: 5px; }
+    .disabled-btn { opacity: 0.3; pointer-events: none; }
+    body { padding-bottom: 90px; }
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="main-card">
+        <h1 class="naat-title">{{ naat.title }}</h1>
+        <a href="/?khawan={{ naat.naat_khawan.id }}" class="artist-badge"><i class="fa-solid fa-user me-2"></i> {{ naat.naat_khawan.name }}</a>
+
+        <div class="play-area">
+            <button class="btn-play-big" onclick="togglePlay()">
+                <i class="fa-solid fa-play" id="mainPlayIcon"></i> <span id="mainPlayText">Play Naat</span>
+            </button>
+            
+            <div class="action-icons">
+                <button class="action-btn" title="Add to Playlist"><i class="fa-solid fa-list-ul"></i></button>
+                
+                {% if user.is_authenticated %}
+                    <a href="{% url 'toggle_favorite' naat.id %}" class="action-btn {% if is_favorite %}fav{% endif %}" title="Favorite">
+                        <i class="{% if is_favorite %}fa-solid{% else %}fa-regular{% endif %} fa-star"></i>
+                    </a>
+                {% else %}
+                    <a href="{% url 'login' %}" class="action-btn" title="Login to Favorite" style="opacity: 0.5;">
+                        <i class="fa-regular fa-star"></i>
+                    </a>
+                {% endif %}
+                
+                <a href="{% url 'download_naat' naat.id %}" class="action-btn" title="Download"><i class="fa-solid fa-download"></i></a>
+            </div>
+        </div>
+
+        <div class="stats-row">
+            <div class="stat-box"><i class="fa-solid fa-tag"></i><div class="label">Category</div><div class="value">Naat</div></div>
+            <div class="stat-box"><i class="fa-solid fa-calendar-days"></i><div class="label">Added</div><div class="value">{{ naat.uploaded_at|date:"M d, Y" }}</div></div>
+            <div class="stat-box"><i class="fa-solid fa-headphones"></i><div class="label">Format</div><div class="value">MP3</div></div>
+        </div>
+    </div>
+
+    {% if related_naats %}
+    <div class="related-section">
+        <h4 class="related-title">More Naats by {{ naat.naat_khawan.name }}</h4>
+        <div class="row">
+            {% for r_naat in related_naats %}
+            <div class="col-md-3 mb-3">
+                <a href="{% url 'naat_detail' r_naat.id %}" class="text-decoration-none">
+                    <div class="card p-3 border-0 shadow-sm h-100">
+                        <h6 class="fw-bold text-dark mb-1 text-truncate">{{ r_naat.title }}</h6>
+                        <small class="text-muted"><i class="fa-solid fa-play me-1"></i> Listen</small>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- STICKY BOTTOM PLAYER -->
+<div class="sticky-player">
+    <div class="container-fluid px-4 d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center" style="width: 25%;">
+            <div class="player-art">{{ naat.title|first|upper }}</div>
+            <div class="player-info">
+                <h6>{{ naat.title }}</h6>
+                <small>{{ naat.naat_khawan.name }}</small>
+            </div>
+        </div>
+        
+        <div style="width: 50%; text-align: center;">
+            <div class="player-controls mb-2">
+                <a href="{% if prev_naat %}{% url 'naat_detail' prev_naat.id %}{% else %}#{% endif %}" class="text-white text-decoration-none {% if not prev_naat %}disabled-btn{% endif %}" title="Previous">
+                    <i class="fa-solid fa-backward-step fs-5"></i>
+                </a>
+                
+                <button class="action-btn text-white border-0 bg-transparent" onclick="seekBackward()" title="-10s"><i class="fa-solid fa-rotate-left fs-5"></i></button>
+                
+                <button class="play-pause-btn" onclick="togglePlay()"><i class="fa-solid fa-play" id="stickyPlayIcon"></i></button>
+                
+                <button class="action-btn text-white border-0 bg-transparent" onclick="seekForward()" title="+10s"><i class="fa-solid fa-rotate-right fs-5"></i></button>
+                
+                <a href="{% if next_naat %}{% url 'naat_detail' next_naat.id %}{% else %}#{% endif %}" class="text-white text-decoration-none {% if not next_naat %}disabled-btn{% endif %}" title="Next">
+                    <i class="fa-solid fa-forward-step fs-5"></i>
+                </a>
+            </div>
+            
+            <div class="player-progress">
+                <span id="currentTime">0:00</span>
+                <div class="progress-bar-custom" onclick="seekAudio(event)"><div class="progress-fill" id="progressFill"></div></div>
+                <span id="duration">0:00</span>
+            </div>
+        </div>
+        
+        <div class="d-flex align-items-center justify-content-end" style="width: 25%;">
+            <div class="volume-container">
+                <i class="fa-solid fa-volume-high text-warning" id="volumeIcon" onclick="toggleMute()"></i>
+                <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="1" oninput="changeVolume(this.value)">
+            </div>
+            <button class="btn btn-sm btn-outline-light rounded-circle ms-3" onclick="window.location.href='/'"><i class="fa-solid fa-expand"></i></button>
+        </div>
+    </div>
+    <audio id="audioPlayer" src="{% url 'stream_naat' naat.id %}" ontimeupdate="updateProgress()" onloadedmetadata="setDuration()"></audio>
+</div>
+
+<script>
+    var audio = document.getElementById('audioPlayer');
+    var mainPlayIcon = document.getElementById('mainPlayIcon');
+    var mainPlayText = document.getElementById('mainPlayText');
+    var stickyPlayIcon = document.getElementById('stickyPlayIcon');
+    var volumeSlider = document.getElementById('volumeSlider');
+    var volumeIcon = document.getElementById('volumeIcon');
+
+    function togglePlay() {
+        if (audio.paused) {
+            audio.play();
+            mainPlayIcon.classList.replace('fa-play', 'fa-pause');
+            stickyPlayIcon.classList.replace('fa-play', 'fa-pause');
+            mainPlayText.innerText = "Pause Naat";
+        } else {
+            audio.pause();
+            mainPlayIcon.classList.replace('fa-pause', 'fa-play');
+            stickyPlayIcon.classList.replace('fa-pause', 'fa-play');
+            mainPlayText.innerText = "Play Naat";
+        }
+    }
+    function setDuration() {
+        var mins = Math.floor(audio.duration / 60);
+        var secs = Math.floor(audio.duration % 60);
+        if(secs < 10) secs = "0" + secs;
+        document.getElementById('duration').innerText = mins + ":" + secs;
+    }
+    function updateProgress() {
+        var current = audio.currentTime;
+        var duration = audio.duration;
+        var mins = Math.floor(current / 60);
+        var secs = Math.floor(current % 60);
+        if(secs < 10) secs = "0" + secs;
+        document.getElementById('currentTime').innerText = mins + ":" + secs;
+        if (duration > 0) { document.getElementById('progressFill').style.width = ((current / duration) * 100) + "%"; }
+    }
+    function seekAudio(e) {
+        var bar = e.currentTarget;
+        var percent = e.offsetX / bar.offsetWidth;
+        audio.currentTime = percent * audio.duration;
+    }
+    function seekForward() { audio.currentTime += 10; }
+    function seekBackward() { audio.currentTime -= 10; }
+    function changeVolume(val) {
+        audio.volume = val;
+        if (val == 0) volumeIcon.className = "fa-solid fa-volume-xmark text-warning";
+        else if (val < 0.5) volumeIcon.className = "fa-solid fa-volume-low text-warning";
+        else volumeIcon.className = "fa-solid fa-volume-high text-warning";
+    }
+    function toggleMute() {
+        if (audio.volume > 0) { audio.volume = 0; volumeSlider.value = 0; volumeIcon.className = "fa-solid fa-volume-xmark text-warning"; }
+        else { audio.volume = 1; volumeSlider.value = 1; volumeIcon.className = "fa-solid fa-volume-high text-warning"; }
+    }
+</script>
+{% endblock %}
