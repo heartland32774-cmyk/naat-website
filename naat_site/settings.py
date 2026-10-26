@@ -4,7 +4,7 @@ Django settings for naat_site project.
 
 from pathlib import Path
 import os
-import dj_database_url # Naya import add kiya
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -13,10 +13,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-z^9v!b5#8o2=w+7$y1&h3j4k5l6m7n8p9q0r1s2t3u'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# Live server ke liye DEBUG ko False kar diya hai
 DEBUG = False
 
-# Sabhi domains ko allow karne ke liye
 ALLOWED_HOSTS = ['*']
 
 
@@ -34,7 +32,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware', # WhiteNoise add kiya
+    'whitenoise.middleware.WhiteNoiseMiddleware', # WhiteNoise Add kiya
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -64,10 +62,20 @@ TEMPLATES = [
 WSGI_APPLICATION = 'naat_site.wsgi.application'
 
 
-# Database (Ab ye PostgreSQL ko support karega)
-DATABASES = {
-    'default': dj_database_url.config(default=os.environ.get('DATABASE_URL'))
-}
+# ==========================================
+# SMART DATABASE SWITCH (Local = SQLite, Live = PostgreSQL)
+# ==========================================
+if os.environ.get('DATABASE_URL'):
+    DATABASES = {
+        'default': dj_database_url.config(default=os.environ.get('DATABASE_URL'), conn_max_age=600)
+    }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Password validation
@@ -94,24 +102,27 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-STATIC_URL = 'static/'
-
-# Static files ki setting taake live par design nazar aaye
+# ==========================================
+# STATIC FILES SETTINGS (Admin design ke liye)
+# ==========================================
+STATIC_URL = '/static/'  # Yahan slash (/) lagana zaroori hai
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# WhiteNoise Storage
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # ==========================================
-# MEDIA FILES SETTINGS (MP3 aur Images ke liye)
+# MEDIA FILES SETTINGS (MP3 aur Images)
 # ==========================================
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # ==========================================
-# EMAIL SETTINGS (Aapki di hui details)
+# EMAIL SETTINGS
 # ==========================================
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
@@ -119,3 +130,6 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'Heartland32774@gmail.com'  
 EMAIL_HOST_PASSWORD = 'embi rehd sxmi uyxh'
+# WhiteNoise ko enable karne ke liye
+WHITENOISE_USE_FINDERS = True
+WHITENOISE_MANIFEST_STRICT = False
