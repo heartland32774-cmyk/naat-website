@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-from .models import Naat, NaatKhawan, Favorite, Hadees, SiteInfo, PageContent
+from .models import Naat, NaatKhawan, Favorite, Hadees, SiteInfo, PageContent, ContactMessage
 from django.contrib import messages
 from django.http import FileResponse, StreamingHttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -11,17 +11,12 @@ from django.conf import settings
 from django.utils import timezone
 from django.db.models import Sum
 import os, mimetypes, re, random
-import threading # NAYA IMPORT (Background Email ke liye)
+import threading
 
-# Background Email Function (Taake server crash na ho)
 def send_email_background(subject, message, reply_to):
     try:
         msg = EmailMessage(
-            subject,
-            message,
-            settings.EMAIL_HOST_USER,
-            [settings.EMAIL_HOST_USER],
-            reply_to=[reply_to]
+            subject, message, settings.EMAIL_HOST_USER, [settings.EMAIL_HOST_USER], reply_to=[reply_to]
         )
         msg.send(fail_silently=True)
     except Exception as e:
@@ -49,9 +44,7 @@ def home(request):
     current_month = timezone.now().month
     current_year = timezone.now().year
     monthly_top_khawans = NaatKhawan.objects.filter(
-        naats__is_live=True, 
-        naats__uploaded_at__month=current_month, 
-        naats__uploaded_at__year=current_year
+        naats__is_live=True, naats__uploaded_at__month=current_month, naats__uploaded_at__year=current_year
     ).annotate(total_views=Sum('naats__views')).order_by('-total_views')[:5]
 
     all_time_top_khawans = NaatKhawan.objects.filter(naats__is_live=True).annotate(
@@ -71,24 +64,16 @@ def all_naat_khawans(request):
     khawans = NaatKhawan.objects.all()
     for khawan in khawans:
         khawan.naat_count = Naat.objects.filter(naat_khawan=khawan, is_live=True).count()
-    
     latest_naats = Naat.objects.filter(is_live=True).order_by('-uploaded_at')[:10]
     trending_naats = Naat.objects.filter(is_live=True).order_by('-views')[:10]
-
-    context = {
-        'khawans': khawans,
-        'latest_naats': latest_naats, 
-        'trending_naats': trending_naats,
-    }
+    context = {'khawans': khawans, 'latest_naats': latest_naats, 'trending_naats': trending_naats}
     return render(request, 'all_khawans.html', context)
 
 def all_naats(request):
     khawans = NaatKhawan.objects.all()
     naats = Naat.objects.filter(is_live=True).order_by('-uploaded_at')
-    
     latest_naats = Naat.objects.filter(is_live=True).order_by('-uploaded_at')[:10]
     trending_naats = Naat.objects.filter(is_live=True).order_by('-views')[:10]
-    
     for k in khawans:
         k.naat_count = Naat.objects.filter(naat_khawan=k, is_live=True).count()
 
@@ -110,7 +95,6 @@ def all_naats(request):
 def naat_khawan_profile(request, khawan_id):
     khawan = get_object_or_404(NaatKhawan, id=khawan_id)
     naats_list = list(Naat.objects.filter(naat_khawan=khawan, is_live=True).order_by('-uploaded_at'))
-    
     for i, naat in enumerate(naats_list):
         naat.prev_id = naats_list[i-1].id if i > 0 else None
         naat.next_id = naats_list[i+1].id if i < len(naats_list)-1 else None
@@ -126,7 +110,6 @@ def naat_khawan_profile(request, khawan_id):
     khawans = NaatKhawan.objects.all()
     latest_naats = Naat.objects.filter(is_live=True).order_by('-uploaded_at')[:10]
     trending_naats = Naat.objects.filter(is_live=True).order_by('-views')[:10]
-    
     for k in khawans:
         k.naat_count = Naat.objects.filter(naat_khawan=k, is_live=True).count()
 
@@ -141,7 +124,6 @@ def popular_naats(request):
     naats = Naat.objects.filter(is_live=True).order_by('-views')[:30]
     latest_naats = Naat.objects.filter(is_live=True).order_by('-uploaded_at')[:10]
     trending_naats = Naat.objects.filter(is_live=True).order_by('-views')[:10]
-    
     for k in khawans:
         k.naat_count = Naat.objects.filter(naat_khawan=k, is_live=True).count()
 
@@ -164,7 +146,6 @@ def naat_detail(request, naat_id):
     naat = get_object_or_404(Naat, id=naat_id)
     naat.views += 1
     naat.save()
-    
     all_naats_list = list(Naat.objects.filter(naat_khawan=naat.naat_khawan, is_live=True).order_by('id'))
     prev_naat = None
     next_naat = None
@@ -197,8 +178,6 @@ def toggle_favorite(request, naat_id):
     fav, created = Favorite.objects.get_or_create(user=request.user, naat=naat)
     if not created:
         fav.delete()
-    else:
-        pass
     return redirect(request.META.get('HTTP_REFERER', 'home'))
 
 @login_required(login_url='/login/')
@@ -229,7 +208,10 @@ def copyright_page(request):
         subject = f"New Copyright Complaint from {name}"
         message = f"Name: {name}\nUser Email: {email}\n\nComplaint Details:\n{complaint}"
         
-        # Email background mein bhejein (Crash na ho)
+        # 1. Database mein save karein
+        ContactMessage.objects.create(name=name, email=email, subject="Copyright Complaint", message=complaint)
+        
+        # 2. Email background mein bhejein
         threading.Thread(target=send_email_background, args=(subject, message, email)).start()
         
         messages.success(request, "Your copyright complaint has been submitted successfully.")
@@ -245,7 +227,6 @@ def privacy_page(request):
     latest_naats = Naat.objects.filter(is_live=True).order_by('-uploaded_at')[:10]
     trending_naats = Naat.objects.filter(is_live=True).order_by('-views')[:10]
     page_data = PageContent.objects.filter(page_name='privacy').first()
-    
     context = {'khawans': khawans, 'latest_naats': latest_naats, 'trending_naats': trending_naats, 'page_data': page_data}
     return render(request, 'pages/privacy.html', context)
 
@@ -262,12 +243,15 @@ def contact_page(request):
         last_name = request.POST.get('last_name', '')
         email = request.POST.get('email', '')
         message_text = request.POST.get('message', '')
-        
         name = f"{first_name} {last_name}".strip()
+        
         subject = f"New Contact Message from {name}"
         full_message = f"Name: {name}\nUser Email: {email}\n\nMessage:\n{message_text}"
         
-        # Email background mein bhejein (Crash na ho)
+        # 1. Database mein save karein
+        ContactMessage.objects.create(name=name, email=email, subject="Contact Message", message=message_text)
+        
+        # 2. Email background mein bhejein
         threading.Thread(target=send_email_background, args=(subject, full_message, email)).start()
         
         messages.success(request, "Your message has been sent successfully. We will get back to you soon.")
@@ -336,7 +320,6 @@ def user_register(request):
         u = request.POST.get('username').strip()
         e = request.POST.get('email').lower().strip()
         p = request.POST.get('password')
-        
         if User.objects.filter(username=u).exists():
             messages.error(request, "Username already exists.")
         elif User.objects.filter(email=e).exists():
@@ -355,18 +338,15 @@ def forgot_password(request):
     if request.method == 'POST':
         e = request.POST.get('email').lower().strip()
         user = User.objects.filter(email=e).first()
-        
         if user:
             otp = str(random.randint(100000, 999999))
             request.session['reset_email'] = e
             request.session['reset_otp'] = otp
             request.session['reset_type'] = 'password'
-            
             subject = 'Password Reset OTP - Noor-e-Naat'
             message = f'Assalam-o-Alaikum,\n\nAapka password reset karne ke liye OTP ye hai: {otp}\n\nShukriya,\nNoor-e-Naat Team'
             from_email = f"Noor-e-Naat Support <{settings.EMAIL_HOST_USER}>"
             recipient_list = [e]
-            
             try:
                 send_mail(subject, message, from_email, recipient_list)
                 messages.success(request, "An OTP has been sent to your email address.")
@@ -381,18 +361,15 @@ def forgot_username(request):
     if request.method == 'POST':
         e = request.POST.get('email').lower().strip()
         user = User.objects.filter(email=e).first()
-        
         if user:
             otp = str(random.randint(100000, 999999))
             request.session['reset_email'] = e
             request.session['reset_otp'] = otp
             request.session['reset_type'] = 'username'
-            
             subject = 'Username Reset OTP - Noor-e-Naat'
             message = f'Assalam-o-Alaikum,\n\nAapka username reset karne ke liye OTP ye hai: {otp}\n\nShukriya,\nNoor-e-Naat Team'
             from_email = f"Noor-e-Naat Support <{settings.EMAIL_HOST_USER}>"
             recipient_list = [e]
-            
             try:
                 send_mail(subject, message, from_email, recipient_list)
                 messages.success(request, "An OTP has been sent to your email address.")
@@ -416,7 +393,6 @@ def reset_credentials(request):
     if 'reset_email' not in request.session: return redirect('login')
     reset_type = request.session.get('reset_type')
     user = User.objects.filter(email=request.session['reset_email']).first()
-
     if request.method == 'POST':
         if reset_type == 'password':
             new_pass = request.POST.get('new_password')
@@ -433,12 +409,10 @@ def reset_credentials(request):
                 user.username = new_username
                 user.save()
                 messages.success(request, "Username updated successfully!")
-        
         del request.session['reset_email']
         del request.session['reset_otp']
         del request.session['reset_type']
         return redirect('login')
-
     return render(request, 'reset_credentials.html', {'reset_type': reset_type})
 
 @login_required(login_url='/login/')

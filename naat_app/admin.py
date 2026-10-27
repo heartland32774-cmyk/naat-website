@@ -1,9 +1,9 @@
 from django.contrib import admin
 from django.urls import reverse
 from django.utils.html import format_html
-from .models import NaatKhawan, Naat, Hadees, Favorite, SiteInfo, PageContent
+from .models import NaatKhawan, Naat, Hadees, Favorite, SiteInfo, PageContent, ContactMessage
 
-# === Edit Button Function (Professional Inline Style) ===
+# === Edit Button Function ===
 def edit_button(obj, model_name):
     url = reverse(f'admin:naat_app_{model_name}_change', args=[obj.id])
     return format_html(
@@ -78,3 +78,13 @@ class PageContentAdmin(admin.ModelAdmin):
     def action_edit(self, obj):
         return edit_button(obj, 'pagecontent')
     action_edit.short_description = 'Actions'
+
+# === NAYA: ContactMessage Admin ===
+@admin.register(ContactMessage)
+class ContactMessageAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'email', 'subject', 'created_at')
+    search_fields = ('name', 'email', 'message')
+    readonly_fields = ('name', 'email', 'subject', 'message', 'created_at')
+    
+    def has_add_permission(self, request):
+        return False # Admin se naya message add nahi ho sakta
