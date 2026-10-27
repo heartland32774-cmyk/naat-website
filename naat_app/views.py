@@ -13,6 +13,7 @@ from django.db.models import Sum
 import os, mimetypes, re, random
 import threading
 
+# Background Email Function
 def send_email_background(subject, message, reply_to):
     try:
         msg = EmailMessage(
@@ -204,16 +205,10 @@ def copyright_page(request):
         email = request.POST.get('email', '')
         complaint = request.POST.get('complaint', '')
         name = f"{first_name} {last_name}".strip()
-        
         subject = f"New Copyright Complaint from {name}"
         message = f"Name: {name}\nUser Email: {email}\n\nComplaint Details:\n{complaint}"
-        
-        # 1. Database mein save karein
         ContactMessage.objects.create(name=name, email=email, subject="Copyright Complaint", message=complaint)
-        
-        # 2. Email background mein bhejein
         threading.Thread(target=send_email_background, args=(subject, message, email)).start()
-        
         messages.success(request, "Your copyright complaint has been submitted successfully.")
         return redirect('copyright_page')
 
@@ -244,21 +239,37 @@ def contact_page(request):
         email = request.POST.get('email', '')
         message_text = request.POST.get('message', '')
         name = f"{first_name} {last_name}".strip()
-        
         subject = f"New Contact Message from {name}"
         full_message = f"Name: {name}\nUser Email: {email}\n\nMessage:\n{message_text}"
-        
-        # 1. Database mein save karein
         ContactMessage.objects.create(name=name, email=email, subject="Contact Message", message=message_text)
-        
-        # 2. Email background mein bhejein
         threading.Thread(target=send_email_background, args=(subject, full_message, email)).start()
-        
         messages.success(request, "Your message has been sent successfully. We will get back to you soon.")
         return redirect('contact_page')
     
     context = {'khawans': khawans, 'latest_naats': latest_naats, 'trending_naats': trending_naats, 'page_data': page_data}
     return render(request, 'pages/contact.html', context)
+
+# NAYA: Reply Function (Admin panel se reply karne ke liye)
+def reply_message(request, message_id):
+    msg = get_object_or_404(ContactMessage, id=message_id)
+    
+    if request.method == 'POST':
+        reply_text = request.POST.get('reply_message')
+        try:
+            email = EmailMessage(
+                f"Re: {msg.subject}",
+                reply_text,
+                settings.EMAIL_HOST_USER,
+                [msg.email],
+            )
+            email.send(fail_silently=True)
+            messages.success(request, "Reply sent successfully!")
+        except Exception as e:
+            messages.error(request, f"Error: {e}")
+        # Wapas Admin panel ki list par bhejein
+        return redirect('/admin/naat_app/contactmessage/') 
+
+    return render(request, 'admin/reply_form.html', {'msg': msg})
 
 def download_naat(request, naat_id):
     naat = get_object_or_404(Naat, id=naat_id)

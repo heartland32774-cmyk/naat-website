@@ -79,7 +79,7 @@
     .widget-text a:hover { color: #1e7d5a; }
     .widget-text small { color: #64748b; font-size: 11px; display: block; }
 
-    /* Top Khawans Grid (New) */
+    /* Top Khawans Grid */
     .top-khawan-card { background: #fff; border-radius: 12px; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.04); text-align: center; padding: 15px 10px; transition: 0.3s; text-decoration: none; display: block; }
     .top-khawan-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
     .top-khawan-img { width: 70px; height: 70px; object-fit: cover; border-radius: 50%; border: 3px solid #1e7d5a; margin-bottom: 10px; }
@@ -115,7 +115,11 @@
             <h5><i class="fa-solid fa-microphone-lines me-1"></i> Naat Khawans</h5>
             {% for khawan in khawans %}
                 <a href="{% url 'khawan_profile' khawan.id %}" class="khawan-link">
-                    {% if khawan.image %}<img src="{{ khawan.image.url }}" class="artist-img-sidebar" alt="{{ khawan.name }}">{% else %}<div class="artist-placeholder-sidebar"><i class="fa-solid fa-user"></i></div>{% endif %}
+                    {% if khawan.image %}
+                        <img src="{{ khawan.image.url }}" class="artist-img-sidebar" alt="{{ khawan.name }}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 50%;">
+                    {% else %}
+                        <div class="artist-placeholder-sidebar"><i class="fa-solid fa-user"></i></div>
+                    {% endif %}
                     {{ khawan.name }} <span class="ms-1 text-muted small">({{ khawan.naat_count }})</span>
                 </a>
             {% endfor %}
@@ -149,7 +153,8 @@
                     </a>
                 </div>
                 {% empty %}
-                <div class="col-12"><p class="text-muted small">Is mahine ki koi naat nahi suni gayi.</p></div>
+                <!-- YAHAN MESSAGE ENGLISH MEIN KAR DIYA HAI -->
+                <div class="col-12"><p class="text-muted small">No Naats were listened to this month.</p></div>
                 {% endfor %}
             </div>
 
@@ -170,7 +175,8 @@
                     </a>
                 </div>
                 {% empty %}
-                <div class="col-12"><p class="text-muted small">Abhi tak koi naat nahi suni gayi.</p></div>
+                <!-- YAHAN MESSAGE ENGLISH MEIN KAR DIYA HAI -->
+                <div class="col-12"><p class="text-muted small">No Naats have been listened to yet.</p></div>
                 {% endfor %}
             </div>
 
@@ -204,7 +210,8 @@
                     </div>
                 </div>
                 {% empty %}
-                <p class="text-muted small">Abhi koi trending naat nahi.</p>
+                <!-- YAHAN MESSAGE ENGLISH MEIN KAR DIYA HAI -->
+                <p class="text-muted small">No trending Naats at the moment.</p>
                 {% endfor %}
             </div>
         </div>
@@ -216,7 +223,6 @@
         var audio = document.getElementById('audio-' + id);
         var icon = document.getElementById('play-icon-' + id);
         var allAudios = document.querySelectorAll('audio');
-        
         allAudios.forEach(function(otherAudio) {
             if(otherAudio.id !== 'audio-' + id) {
                 otherAudio.pause();
@@ -225,21 +231,17 @@
                 if(otherIcon) otherIcon.className = 'fa-solid fa-play';
             }
         });
-
-        if (audio.paused) {
+        if (audio.paused) { 
             audio.play(); 
-            icon.className = 'fa-solid fa-pause';
+            icon.className = 'fa-solid fa-pause'; 
             
-            // AJAX View Counter
             var xhr = new XMLHttpRequest();
             xhr.open("POST", "/api/increment-view/" + id + "/", true);
             xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
             xhr.send();
             
-        } else {
-            audio.pause(); 
-            icon.className = 'fa-solid fa-play';
         }
+        else { audio.pause(); icon.className = 'fa-solid fa-play'; }
     }
     function updateCustomPlayer(id) {
         var audio = document.getElementById('audio-' + id);
@@ -271,5 +273,6 @@
         }
     }
     function changeCustomVolume(id, val) { var audio = document.getElementById('audio-' + id); audio.volume = val; }
+    function autoNext(nextId) { if (nextId) { var nextAudio = document.getElementById('audio-' + nextId); if (nextAudio) { toggleCustomPlay(nextId); } } }
 </script>
 {% endblock %}

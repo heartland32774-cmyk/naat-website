@@ -4,7 +4,7 @@ from . import views
 urlpatterns = [
     # Main Pages
     path('', views.home, name='home'),
-    path('naats/', views.all_naats, name='all_naats'), # Naya Naats Tab
+    path('naats/', views.all_naats, name='all_naats'),
     path('popular/', views.popular_naats, name='popular_naats'),
     path('naat-khawans/', views.all_naat_khawans, name='all_naat_khawans'),
     path('khawan/<int:khawan_id>/', views.naat_khawan_profile, name='khawan_profile'),

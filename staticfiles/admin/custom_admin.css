@@ -1,0 +1,10 @@
+/* Unread message ki row ko grey karein (agar admin.py se na ho) */
+tr.unread-row td {
+    background-color: #e2e8f0 !important;
+    font-weight: bold !important;
+    color: #000 !important;
+}
+
+tr.read-row td {
+    background-color: #ffffff !important;
+}

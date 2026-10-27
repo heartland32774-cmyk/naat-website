@@ -20,14 +20,14 @@
     /* Favorite Button Styling (Orange Color) */
     .fav-btn { color: #ccc; font-size: 20px; transition: 0.2s; text-decoration: none; }
     .fav-btn:hover { transform: scale(1.2); }
-    .fav-btn.active { color: #f59e0b; } /* Yellowish Orange */
+    .fav-btn.active { color: #f59e0b; }
 {% endblock %}
 
 {% block content %}
 <div class="container mt-4">
     <div class="profile-header">
         {% if khawan.image %}
-            <img src="{{ khawan.image.url }}" class="profile-img">
+            <img src="{{ khawan.image.url }}" class="profile-img" alt="{{ khawan.name }}" style="width: 150px; height: 150px; object-fit: cover; border-radius: 50%;">
         {% else %}
             <div class="profile-placeholder"><i class="fa-solid fa-user"></i></div>
         {% endif %}
@@ -41,7 +41,6 @@
         <div class="col-md-6 col-lg-4 mb-4">
             <div class="card naat-card p-3 h-100 position-relative">
                 
-                <!-- FAVORITE BUTTON -->
                 <div class="position-absolute top-0 end-0 m-3">
                     {% if user.is_authenticated %}
                         <a href="{% url 'toggle_favorite' naat.id %}" class="fav-btn {% if naat.is_fav %}active{% endif %}" title="Add to Favorites">
@@ -73,7 +72,6 @@
                     <input type="range" class="cp-volume" min="0" max="1" step="0.1" value="1" oninput="changeCustomVolume({{ naat.id }}, this.value)">
                 </div>
 
-                <!-- DOWNLOAD & DETAILS BUTTONS -->
                 <div class="d-flex justify-content-between align-items-center mt-3">
                     <a href="{% url 'download_naat' naat.id %}" class="btn btn-sm btn-outline-success rounded-pill px-3">
                         <i class="fa-solid fa-download me-1"></i> Download

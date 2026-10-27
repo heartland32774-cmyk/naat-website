@@ -13,7 +13,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-z^9v!b5#8o2=w+7$y1&h3j4k5l6m7n8p9q0r1s2t3u'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+# LOCAL PAR IMAGES DIKHANE KE LIYE DEBUG TRUE HONA ZAROORI HAI
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -103,7 +104,7 @@ USE_TZ = True
 
 
 # ==========================================
-# STATIC & MEDIA FILES SETTINGS (WhiteNoise)
+# STATIC FILES SETTINGS (CSS aur Logo ke liye)
 # ==========================================
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
@@ -119,17 +120,17 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # ==========================================
-# MEDIA FILES SETTINGS
+# MEDIA FILES SETTINGS (MP3 aur Images ke liye)
 # ==========================================
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # ==========================================
-# EMAIL SETTINGS (Live Server Fix - Port 465 SSL)
+# EMAIL SETTINGS (Port 465 for SSL)
 # ==========================================
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 465               # SSL Port for Render
+EMAIL_PORT = 465
 EMAIL_USE_SSL = True
 EMAIL_USE_TLS = False
 EMAIL_HOST_USER = 'Heartland32774@gmail.com'  
