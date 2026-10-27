@@ -32,7 +32,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware', # WhiteNoise Add kiya
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -103,16 +103,16 @@ USE_TZ = True
 
 
 # ==========================================
-# STATIC FILES SETTINGS (Logo aur CSS ke liye)
+# STATIC & MEDIA FILES SETTINGS (WhiteNoise Fix)
 # ==========================================
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# Ye line aapke main 'static' folder ko point karti hai
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
 
+# Ye line WhiteNoise ko batati hai ke files ko compress aur serve kare
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
