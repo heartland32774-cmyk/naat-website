@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block title %}Privacy Policy | Noor-e-Naat{% endblock %}
+
+{% block extra_css %}
+    .sidebar { background: #fff; min-height: calc(100vh - 65px); border-right: 1px solid #eaeaea; padding-top: 20px; position: sticky; top: 65px; overflow-y: auto; }
+    .sidebar h5 { padding-left: 20px; font-weight: 700; margin-bottom: 15px; color: #333; font-size: 16px; text-transform: uppercase; }
+    .khawan-link { display: flex; align-items: center; padding: 10px 20px; color: #555; text-decoration: none; transition: 0.2s; border-left: 4px solid transparent; }
+    .khawan-link:hover { background: #f1f5f9; color: #1e7d5a; }
+    .artist-img-sidebar { width: 35px; height: 35px; object-fit: cover; border-radius: 50%; margin-right: 12px; }
+    .artist-placeholder-sidebar { width: 35px; height: 35px; border-radius: 50%; background: #1e7d5a; color: white; display: flex; align-items: center; justify-content: center; font-size: 14px; margin-right: 12px; }
+    .main-content { padding: 15px; flex: 1; }
+    @media (min-width: 768px) { .main-content { padding: 30px; } }
+    .right-widget { background: #fff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); padding: 20px; margin-bottom: 20px; }
+    .right-widget h5 { font-size: 16px; font-weight: 700; color: #1e7d5a; border-bottom: 2px solid #e8f5e9; padding-bottom: 10px; margin-bottom: 15px; }
+    .widget-item { display: flex; align-items: flex-start; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px dashed #e2e8f0; }
+    .widget-item:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+    .widget-icon { color: #1e7d5a; margin-right: 10px; margin-top: 3px; font-size: 14px; }
+    .widget-text { flex: 1; }
+    .widget-text a { color: #333; font-weight: 600; font-size: 14px; text-decoration: none; display: block; line-height: 1.3; margin-bottom: 3px; }
+    .widget-text a:hover { color: #1e7d5a; }
+    .widget-text small { color: #64748b; font-size: 11px; display: block; }
+    .content-card h2, .content-card h3 { color: #333; font-weight: 700; margin-top: 25px; margin-bottom: 15px; }
+    .content-card p, .content-card li { color: #555; font-size: 15px; line-height: 1.8; margin-bottom: 15px; }
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-3">
+    <div class="row">
+        <div class="col-md-3 col-lg-2 sidebar d-none d-md-block">
+            <h5><i class="fa-solid fa-microphone-lines me-1"></i> Naat Khawans</h5>
+            {% for khawan in khawans %}
+                <a href="{% url 'khawan_profile' khawan.id %}" class="khawan-link">
+                    {% if khawan.image %}<img src="{{ khawan.image.url }}" class="artist-img-sidebar" alt="{{ khawan.name }}">{% else %}<div class="artist-placeholder-sidebar"><i class="fa-solid fa-user"></i></div>{% endif %}
+                    {{ khawan.name }} <span class="ms-1 text-muted small">({{ khawan.naat_count }})</span>
+                </a>
+            {% endfor %}
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-7 main-content">
+            <div class="card p-4 p-md-5 shadow-sm border-0 content-card">
+                <h1 class="fw-bold mb-4" style="color: #333;">
+                    {% if page_data %}{{ page_data.title }}{% else %}Privacy Policy{% endif %}
+                </h1>
+                
+                <!-- YAHAN ADMIN KA CONTENT SHOW HOGA -->
+                {% if page_data %}
+                    <div>{{ page_data.content|safe|linebreaks }}</div>
+                {% else %}
+                    <p class="text-muted">Admin panel se is page ka content add karein.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="col-md-3 col-lg-3 d-none d-md-block mt-4">
+            <div class="right-widget">
+                <h5><i class="fa-solid fa-clock-rotate-left me-2"></i>Latest MP3 Naats</h5>
+                {% for l_naat in latest_naats %}
+                <div class="widget-item">
+                    <i class="fa-solid fa-circle-play widget-icon"></i>
+                    <div class="widget-text">
+                        <a href="{% url 'naat_detail' l_naat.id %}">{{ l_naat.title }}</a>
+                        <small><i class="fa-solid fa-user me-1"></i>{{ l_naat.naat_khawan.name }}</small>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="right-widget">
+                <h5><i class="fa-solid fa-fire text-danger me-2"></i>Top Trending Naats 2026</h5>
+                {% for t_naat in trending_naats %}
+                <div class="widget-item">
+                    <i class="fa-solid fa-arrow-trend-up text-danger widget-icon"></i>
+                    <div class="widget-text">
+                        <a href="{% url 'naat_detail' t_naat.id %}">{{ t_naat.title }}</a>
+                        <small>By {{ t_naat.naat_khawan.name }} | <i class="fa-solid fa-headphones"></i> {{ t_naat.views }}</small>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

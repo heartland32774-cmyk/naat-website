@@ -1,35 +1,37 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Yahan Title Change kiya hai -->
     <title>{% block title %}Noor-e-Naat{% endblock %}</title>
     
-    <!-- Google Fonts for Urdu (Nastaliq) -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&display=swap" rel="stylesheet">
-    
-    <!-- Bootstrap & FontAwesome -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        body { 
-            background-color: #f8f9fa; 
-            font-family: 'Segoe UI', sans-serif; 
-            display: flex; 
-            flex-direction: column; 
-            min-height: 100vh; 
-        }
+        body { background-color: #f8f9fa; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; min-height: 100vh; }
         .content-wrapper { flex: 1; }
-
-        .navbar { background-color: #ffffff; border-bottom: 1px solid #e0e0e0; padding: 12px 0; }
-        .navbar-brand { font-weight: 800; color: #1e7d5a !important; font-size: 22px; }
-        .nav-link { font-weight: 600; color: #555 !important; margin: 0 10px; font-size: 15px; transition: 0.2s; }
-        .nav-link:hover, .nav-link.active { color: #1e7d5a !important; }
+        .navbar { background-color: #ffffff; border-bottom: 1px solid #e0e0e0; padding: 8px 0; }
         
-        .urdu-text { font-family: 'Noto Nastaliq Urdu', serif; direction: rtl; }
+        /* Logo Styling */
+                .navbar-brand img { 
+            height: 90px;  /* Yahan size barha diya hai */
+            width: auto; 
+            object-fit: contain; 
+            margin-top: -10px; /* Taake navbar ke sath align rahe */
+            margin-bottom: -10px;
+        }
+        
+        .nav-link { font-weight: 600; color: #555 !important; margin: 0 5px; font-size: 14px; transition: 0.2s; border-bottom: 3px solid transparent; padding-bottom: 5px; }
+        .nav-link:hover { color: #1e7d5a !important; }
+        
+        /* ACTIVE TAB DESIGN */
+        .nav-link.active { color: #1e7d5a !important; border-bottom: 3px solid #1e7d5a; }
 
+        .urdu-text { font-family: 'Noto Nastaliq Urdu', serif; direction: rtl; }
+        
         .footer { background-color: #1a1a1a; color: #d1d5db; padding: 50px 0 20px 0; margin-top: auto; }
         .footer h5 { color: #ffffff; font-weight: 700; margin-bottom: 20px; font-size: 16px; }
         .footer a { color: #d1d5db; text-decoration: none; transition: 0.2s; display: block; margin-bottom: 10px; font-size: 14px; }
@@ -37,17 +39,18 @@
         .footer .social-icons a { display: inline-flex; align-items: center; justify-content: center; width: 35px; height: 35px; border-radius: 50%; background: #333; color: #fff; margin-right: 10px; transition: 0.3s; }
         .footer .social-icons a:hover { background: #1e7d5a; padding-left: 0; transform: translateY(-3px); }
         .footer-bottom { border-top: 1px solid #333; padding-top: 20px; margin-top: 30px; text-align: center; font-size: 13px; color: #888; }
-
+        
         {% block extra_css %}{% endblock %}
     </style>
 </head>
 <body>
 
-    <!-- Universal Navbar -->
     <nav class="navbar navbar-expand-lg sticky-top shadow-sm">
         <div class="container-fluid px-4">
-            <!-- Yahan Navbar ka Naam Change kiya hai -->
-            <a class="navbar-brand" href="/"><i class="fa-solid fa-moon me-2"></i>Noor-e-Naat</a>
+            <!-- YAHAN LOGO LAGA HAI -->
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img src="{% static 'images/logo.png' %}" alt="Noor-e-Naat Logo">
+            </a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -55,17 +58,56 @@
             
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav mx-auto">
-                    <li class="nav-item"><a class="nav-link" href="/"><i class="fa-solid fa-house me-1"></i> Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/?view=popular"><i class="fa-solid fa-fire text-danger me-1"></i> Popular Naats</a></li>
+                    
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">
+                            <i class="fa-solid fa-house me-1"></i> Home
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'all_naat_khawans' or request.resolver_match.url_name == 'khawan_profile' %}active{% endif %}" href="{% url 'all_naat_khawans' %}">
+                            <i class="fa-solid fa-microphone-lines me-1"></i> Naat Khawans
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'all_naats' %}active{% endif %}" href="{% url 'all_naats' %}">
+                            <i class="fa-solid fa-music me-1"></i> Naats
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'popular_naats' %}active{% endif %}" href="{% url 'popular_naats' %}">
+                            <i class="fa-solid fa-fire text-danger me-1"></i> Popular Naats
+                        </a>
+                    </li>
+                    
                     {% if user.is_authenticated %}
-                    <li class="nav-item"><a class="nav-link" href="{% url 'my_favorites' %}"><i class="fa-regular fa-star me-1"></i> My Favorites</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'my_favorites' %}active{% endif %}" href="{% url 'my_favorites' %}">
+                            <i class="fa-regular fa-star me-1"></i> My Favorites
+                        </a>
+                    </li>
                     {% endif %}
+                    
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'copyright_page' %}active{% endif %}" href="{% url 'copyright_page' %}">Copyright</a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'privacy_page' %}active{% endif %}" href="{% url 'privacy_page' %}">Privacy</a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'contact_page' %}active{% endif %}" href="{% url 'contact_page' %}">Contact</a>
+                    </li>
                 </ul>
                 
-                <div class="d-flex align-items-center gap-2">
+                <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0">
                     {% if user.is_authenticated %}
                         <div class="dropdown">
-                            <button class="btn btn-outline-success btn-sm rounded-pill px-3 dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <button class="btn btn-outline-success btn-sm rounded-pill px-3 dropdown-toggle w-100" type="button" data-bs-toggle="dropdown">
                                 <i class="fa-solid fa-user-circle me-1"></i> {{ user.username }}
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end shadow border-0">
@@ -75,39 +117,38 @@
                             </ul>
                         </div>
                     {% else %}
-                        <a href="{% url 'login' %}" class="btn btn-outline-dark btn-sm rounded-pill px-3">Login</a>
-                        <a href="{% url 'register' %}" class="btn btn-success btn-sm rounded-pill px-3">Register</a>
+                        <a href="{% url 'login' %}" class="btn btn-outline-dark btn-sm rounded-pill px-3 w-100">Login</a>
+                        <a href="{% url 'register' %}" class="btn btn-success btn-sm rounded-pill px-3 w-100">Register</a>
                     {% endif %}
                 </div>
             </div>
         </div>
     </nav>
 
-    <!-- Main Content Wrapper -->
     <div class="content-wrapper">
         {% block content %}{% endblock %}
     </div>
 
-    <!-- Footer Section -->
     <footer class="footer">
         <div class="container">
             <div class="row">
-                <div class="col-md-4 mb-4">
-                    <!-- Yahan Footer ka Naam Change kiya hai -->
-                    <h5><i class="fa-solid fa-moon me-2"></i>Noor-e-Naat</h5>
+                <div class="col-md-4 mb-4 text-center text-md-start">
+                    <!-- Footer mein bhi logo laga sakte hain -->
+                    <img src="{% static 'images/logo.png' %}" alt="Noor-e-Naat" style="height: 50px; margin-bottom: 10px; filter: brightness(0) invert(1);">
                     <p style="font-size: 14px; line-height: 1.6;">Listen to the most beautiful and soulful Naats from your favorite Naat Khawans. A platform dedicated to spiritual peace and devotion.</p>
                 </div>
                 
-                <div class="col-md-4 mb-4">
+                <div class="col-md-4 mb-4 text-center text-md-start">
                     <h5>Quick Links</h5>
-                    <a href="/">Home</a>
-                    <a href="/?view=popular">Popular Naats</a>
+                    <a href="{% url 'home' %}">Home</a>
+                    <a href="{% url 'popular_naats' %}">Popular Naats</a>
+                    <a href="{% url 'all_naat_khawans' %}">Naat Khawans</a>
                     {% if user.is_authenticated %}
                     <a href="{% url 'my_favorites' %}">My Favorites</a>
                     {% endif %}
                 </div>
                 
-                <div class="col-md-4 mb-4">
+                <div class="col-md-4 mb-4 text-center text-md-start">
                     <h5>Connect With Us</h5>
                     <div class="social-icons mt-2">
                         <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
@@ -119,13 +160,11 @@
             </div>
             
             <div class="footer-bottom">
-                <!-- Yahan Copyright Change kiya hai -->
                 &copy; 2026 Noor-e-Naat. All rights reserved. | Made with <i class="fa-solid fa-heart text-danger"></i> for Naat Lovers.
             </div>
         </div>
     </footer>
 
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

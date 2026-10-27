@@ -32,7 +32,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware', # WhiteNoise Add kiya
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -46,7 +46,7 @@ ROOT_URLCONF = 'naat_site.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -103,12 +103,16 @@ USE_TZ = True
 
 
 # ==========================================
-# STATIC FILES SETTINGS (Admin design ke liye)
+# STATIC FILES SETTINGS (Logo aur CSS ke liye)
 # ==========================================
-STATIC_URL = '/static/'  # Yahan slash (/) lagana zaroori hai
+STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# WhiteNoise Storage
+# Ye line aapke main 'static' folder ko point karti hai
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
+
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
@@ -116,7 +120,7 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # ==========================================
-# MEDIA FILES SETTINGS (MP3 aur Images)
+# MEDIA FILES SETTINGS
 # ==========================================
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -130,6 +134,7 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'Heartland32774@gmail.com'  
 EMAIL_HOST_PASSWORD = 'embi rehd sxmi uyxh'
-# WhiteNoise ko enable karne ke liye
+
+# WhiteNoise Fix
 WHITENOISE_USE_FINDERS = True
 WHITENOISE_MANIFEST_STRICT = False

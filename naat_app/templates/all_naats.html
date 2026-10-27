@@ -1,0 +1,216 @@
+{% extends 'base.html' %}
+{% block title %}All Naats | Noor-e-Naat{% endblock %}
+
+{% block extra_css %}
+    .sidebar { background: #fff; min-height: calc(100vh - 65px); border-right: 1px solid #eaeaea; padding-top: 20px; position: sticky; top: 65px; overflow-y: auto; }
+    .sidebar h5 { padding-left: 20px; font-weight: 700; margin-bottom: 15px; color: #333; font-size: 16px; text-transform: uppercase; }
+    .khawan-link { display: flex; align-items: center; padding: 10px 20px; color: #555; text-decoration: none; transition: 0.2s; border-left: 4px solid transparent; }
+    .khawan-link:hover, .khawan-link.active { background: #f1f5f9; color: #1e7d5a; border-left-color: #1e7d5a; font-weight: 600; }
+    .artist-img-sidebar { width: 35px; height: 35px; object-fit: cover; border-radius: 50%; margin-right: 12px; }
+    .artist-placeholder-sidebar { width: 35px; height: 35px; border-radius: 50%; background: #1e7d5a; color: white; display: flex; align-items: center; justify-content: center; font-size: 14px; margin-right: 12px; }
+    
+    .main-content { padding: 15px; flex: 1; }
+    @media (min-width: 768px) { .main-content { padding: 30px; } }
+
+    .page-title { font-size: 24px; font-weight: 700; color: #222; margin-bottom: 5px; }
+    .naat-card { background: #fff; border-radius: 15px; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.04); transition: 0.3s; }
+    .naat-card:hover { transform: translateY(-4px); box-shadow: 0 8px 25px rgba(0,0,0,0.08); }
+    .artist-img-card { width: 50px; height: 50px; object-fit: cover; border-radius: 50%; margin-right: 15px; }
+    .artist-placeholder-card { width: 50px; height: 50px; border-radius: 50%; background: #1e7d5a; color: white; display: flex; align-items: center; justify-content: center; font-size: 18px; margin-right: 15px; }
+
+    .custom-player { background: #f1f5f9; border-radius: 30px; padding: 6px 15px; display: flex; align-items: center; gap: 10px; margin-top: 15px; }
+    .cp-btn { background: none; border: none; color: #1e7d5a; font-size: 14px; cursor: pointer; padding: 0; transition: 0.2s; }
+    .cp-btn:hover { color: #166347; transform: scale(1.1); }
+    .cp-time { font-size: 11px; color: #64748b; font-weight: 600; width: 30px; text-align: center; }
+    .cp-progress-container { flex-grow: 1; height: 8px; background: #cbd5e1; border-radius: 5px; cursor: pointer; position: relative; }
+    .cp-progress-fill { height: 100%; background: #1e7d5a; border-radius: 5px; width: 0%; pointer-events: none; }
+    .cp-volume { width: 50px; cursor: pointer; accent-color: #1e7d5a; }
+
+    .fav-btn { color: #ccc; font-size: 20px; transition: 0.2s; text-decoration: none; }
+    .fav-btn:hover { transform: scale(1.2); }
+    .fav-btn.active { color: #f59e0b; }
+
+    .right-widget { background: #fff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); padding: 20px; margin-bottom: 20px; }
+    .right-widget h5 { font-size: 16px; font-weight: 700; color: #1e7d5a; border-bottom: 2px solid #e8f5e9; padding-bottom: 10px; margin-bottom: 15px; }
+    .widget-item { display: flex; align-items: flex-start; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px dashed #e2e8f0; }
+    .widget-item:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+    .widget-icon { color: #1e7d5a; margin-right: 10px; margin-top: 3px; font-size: 14px; }
+    .widget-text { flex: 1; }
+    .widget-text a { color: #333; font-weight: 600; font-size: 14px; text-decoration: none; display: block; line-height: 1.3; margin-bottom: 3px; }
+    .widget-text a:hover { color: #1e7d5a; }
+    .widget-text small { color: #64748b; font-size: 11px; display: block; }
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-3">
+    <div class="row">
+        <div class="col-md-3 col-lg-2 sidebar d-none d-md-block">
+            <h5><i class="fa-solid fa-microphone-lines me-1"></i> Naat Khawans</h5>
+            {% for khawan in khawans %}
+                <a href="{% url 'khawan_profile' khawan.id %}" class="khawan-link">
+                    {% if khawan.image %}<img src="{{ khawan.image.url }}" class="artist-img-sidebar" alt="{{ khawan.name }}">{% else %}<div class="artist-placeholder-sidebar"><i class="fa-solid fa-user"></i></div>{% endif %}
+                    {{ khawan.name }} <span class="ms-1 text-muted small">({{ khawan.naat_count }})</span>
+                </a>
+            {% endfor %}
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-7 main-content">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold" style="color: #1e7d5a;"><i class="fa-solid fa-music me-2"></i>All Naats</h2>
+                <a href="/" class="btn btn-outline-secondary btn-sm rounded-pill"><i class="fa-solid fa-arrow-left me-1"></i> Back</a>
+            </div>
+            
+            <p class="text-muted mb-4">All available naats on Noor-e-Naat.</p>
+
+            <div class="row">
+                {% for naat in naats %}
+                <div class="col-12 col-xl-6 mb-4">
+                    <div class="card naat-card p-3 p-md-4 h-100 position-relative">
+                        
+                        <div class="position-absolute top-0 end-0 m-3">
+                            {% if user.is_authenticated %}
+                                <a href="{% url 'toggle_favorite' naat.id %}" class="fav-btn {% if naat.is_fav %}active{% endif %}" title="Add to Favorites">
+                                    <i class="{% if naat.is_fav %}fa-solid{% else %}fa-regular{% endif %} fa-star"></i>
+                                </a>
+                            {% else %}
+                                <a href="{% url 'login' %}" class="fav-btn" title="Login to Favorite">
+                                    <i class="fa-regular fa-star"></i>
+                                </a>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-flex align-items-center mb-2">
+                            {% if naat.naat_khawan.image %}
+                                <img src="{{ naat.naat_khawan.image.url }}" class="artist-img-card" alt="{{ naat.naat_khawan.name }}">
+                            {% else %}
+                                <div class="artist-placeholder-card"><i class="fa-solid fa-user"></i></div>
+                            {% endif %}
+                            <div>
+                                <a href="{% url 'naat_detail' naat.id %}" class="text-decoration-none">
+                                    <h5 class="fw-bold mb-0 text-truncate text-dark" style="max-width: 180px;">{{ naat.title }}</h5>
+                                </a>
+                                <small class="text-muted"><i class="fa-solid fa-microphone me-1"></i>{{ naat.naat_khawan.name }}</small>
+                            </div>
+                        </div>
+                        
+                        <div class="custom-player" id="player-{{ naat.id }}">
+                            <audio id="audio-{{ naat.id }}" preload="metadata" ontimeupdate="updateCustomPlayer({{ naat.id }})" onloadedmetadata="setCustomDuration({{ naat.id }})">
+                                <source src="{% url 'stream_naat' naat.id %}" type="audio/mpeg">
+                            </audio>
+                            <button class="cp-btn" onclick="toggleCustomPlay({{ naat.id }})">
+                                <i class="fa-solid fa-play" id="play-icon-{{ naat.id }}"></i>
+                            </button>
+                            <span class="cp-time" id="current-time-{{ naat.id }}">0:00</span>
+                            <div class="cp-progress-container" onclick="seekCustom(event, {{ naat.id }})">
+                                <div class="cp-progress-fill" id="progress-{{ naat.id }}"></div>
+                            </div>
+                            <span class="cp-time" id="duration-{{ naat.id }}">0:00</span>
+                            <i class="fa-solid fa-volume-high text-success" style="font-size: 12px;"></i>
+                            <input type="range" class="cp-volume" min="0" max="1" step="0.1" value="1" oninput="changeCustomVolume({{ naat.id }}, this.value)">
+                        </div>
+                        
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <a href="{% url 'download_naat' naat.id %}" class="btn btn-sm btn-outline-success rounded-pill px-3">
+                                <i class="fa-solid fa-download me-1"></i> Download
+                            </a>
+                            <a href="{% url 'naat_detail' naat.id %}" class="text-success small text-decoration-none fw-bold">
+                                View Details <i class="fa-solid fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12 text-center py-5">
+                    <h4 class="text-muted"><i class="fa-solid fa-music me-2"></i>Abhi koi naat nahi hai.</h4>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="col-md-3 col-lg-3 d-none d-md-block mt-4">
+            <div class="right-widget">
+                <h5><i class="fa-solid fa-clock-rotate-left me-2"></i>Latest MP3 Naats</h5>
+                {% for l_naat in latest_naats %}
+                <div class="widget-item">
+                    <i class="fa-solid fa-circle-play widget-icon"></i>
+                    <div class="widget-text">
+                        <a href="{% url 'naat_detail' l_naat.id %}">{{ l_naat.title }}</a>
+                        <small><i class="fa-solid fa-user me-1"></i>{{ l_naat.naat_khawan.name }}</small>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="right-widget">
+                <h5><i class="fa-solid fa-fire text-danger me-2"></i>Top Trending Naats 2026</h5>
+                {% for t_naat in trending_naats %}
+                <div class="widget-item">
+                    <i class="fa-solid fa-arrow-trend-up text-danger widget-icon"></i>
+                    <div class="widget-text">
+                        <a href="{% url 'naat_detail' t_naat.id %}">{{ t_naat.title }}</a>
+                        <small>By {{ t_naat.naat_khawan.name }} | <i class="fa-solid fa-headphones"></i> {{ t_naat.views }}</small>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleCustomPlay(id) {
+        var audio = document.getElementById('audio-' + id);
+        var icon = document.getElementById('play-icon-' + id);
+        var allAudios = document.querySelectorAll('audio');
+        allAudios.forEach(function(otherAudio) {
+            if(otherAudio.id !== 'audio-' + id) {
+                otherAudio.pause();
+                var otherId = otherAudio.id.replace('audio-', '');
+                var otherIcon = document.getElementById('play-icon-' + otherId);
+                if(otherIcon) otherIcon.className = 'fa-solid fa-play';
+            }
+        });
+        if (audio.paused) { 
+            audio.play(); 
+            icon.className = 'fa-solid fa-pause'; 
+            
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "/api/increment-view/" + id + "/", true);
+            xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+            xhr.send();
+            
+        }
+        else { audio.pause(); icon.className = 'fa-solid fa-play'; }
+    }
+    function updateCustomPlayer(id) {
+        var audio = document.getElementById('audio-' + id);
+        var progress = document.getElementById('progress-' + id);
+        var timeDisplay = document.getElementById('current-time-' + id);
+        var mins = Math.floor(audio.currentTime / 60);
+        var secs = Math.floor(audio.currentTime % 60);
+        if(secs < 10) secs = "0" + secs;
+        timeDisplay.innerText = mins + ":" + secs;
+        if (audio.duration > 0) { progress.style.width = ((audio.currentTime / audio.duration) * 100) + "%"; }
+    }
+    function setCustomDuration(id) {
+        var audio = document.getElementById('audio-' + id);
+        var durationDisplay = document.getElementById('duration-' + id);
+        var mins = Math.floor(audio.duration / 60);
+        var secs = Math.floor(audio.duration % 60);
+        if(secs < 10) secs = "0" + secs;
+        durationDisplay.innerText = mins + ":" + secs;
+    }
+    function seekCustom(e, id) {
+        var audio = document.getElementById('audio-' + id);
+        var bar = e.currentTarget;
+        var rect = bar.getBoundingClientRect();
+        var clickX = e.clientX - rect.left;
+        var percent = Math.max(0, Math.min(1, clickX / rect.width));
+        if (audio.duration) {
+            audio.currentTime = percent * audio.duration;
+            updateCustomPlayer(id);
+        }
+    }
+    function changeCustomVolume(id, val) { var audio = document.getElementById('audio-' + id); audio.volume = val; }
+</script>
+{% endblock %}

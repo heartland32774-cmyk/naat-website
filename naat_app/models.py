@@ -15,6 +15,7 @@ class Naat(models.Model):
     uploaded_at = models.DateTimeField(auto_now_add=True)
     is_live = models.BooleanField(default=True)
     is_popular = models.BooleanField(default=False)
+    views = models.IntegerField(default=0, help_text="Kitni dafa suni gayi")
 
     def __str__(self):
         return self.title
@@ -30,12 +31,32 @@ class Favorite(models.Model):
     def __str__(self):
         return f"{self.user.username} - {self.naat.title}"
 
-# === NAYA MODEL: HADEES ===
 class Hadees(models.Model):
-    hadees_text = models.TextField(help_text="Hadees ka Arabic ya Urdu matn yahan likhein")
-    tarjuma = models.TextField(help_text="Hadees ka tarjuma yahan likhein")
-    reference = models.CharField(max_length=200, blank=True, null=True, help_text="Hadees ki kitab ya reference (e.g., Sahih Bukhari)")
-    is_active = models.BooleanField(default=True, help_text="Tick karein taake Home page par dikhe")
+    hadees_text = models.TextField(help_text="Hadees ka Arabic ya Urdu matn")
+    tarjuma = models.TextField(help_text="Hadees ka tarjuma")
+    reference = models.CharField(max_length=200, blank=True, null=True)
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.hadees_text[:50]
+
+class SiteInfo(models.Model):
+    welcome_title = models.CharField(max_length=200, default="Welcome to Noor-e-Naat")
+    welcome_text = models.TextField(help_text="Home page par dikhne wala text")
+
+    def __str__(self):
+        return "Site Information"
+
+# NAYA MODEL: Pages ka content admin se lene ke liye
+class PageContent(models.Model):
+    PAGE_CHOICES = [
+        ('privacy', 'Privacy Policy'),
+        ('copyright', 'Copyright Policy'),
+        ('contact', 'Contact Us'),
+    ]
+    page_name = models.CharField(max_length=20, choices=PAGE_CHOICES, unique=True)
+    title = models.CharField(max_length=200, help_text="Page ka heading")
+    content = models.TextField(help_text="Page ka poora content yahan likhein")
+
+    def __str__(self):
+        return self.get_page_name_display()
