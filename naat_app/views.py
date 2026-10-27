@@ -88,7 +88,7 @@ def all_naats(request):
     context = {
         'naats': naats, 'khawans': khawans, 'latest_naats': latest_naats, 
         'trending_naats': trending_naats, 'page_title': "All Naats", 
-        'page_subtitle': "Listen to all the naats available on Noor-e-Naat."
+        'page_subtitle': "All available naats on Noor-e-Naat."
     }
     return render(request, 'all_naats.html', context)
 
@@ -141,7 +141,7 @@ def popular_naats(request):
     context = {
         'naats': naats, 'khawans': khawans, 'latest_naats': latest_naats, 
         'trending_naats': trending_naats, 'page_title': "Top 30 Popular Naats", 
-        'page_subtitle': "Most listened naats of all time."
+        'page_subtitle': "Top 30 most listened naats of all time."
     }
     return render(request, 'popular.html', context)
 
@@ -222,8 +222,7 @@ def copyright_page(request):
                 [settings.EMAIL_HOST_USER],
                 reply_to=[email]
             )
-            msg.send()
-            # Yahan message English mein kiya hai
+            msg.send(fail_silently=True)
             messages.success(request, "Your copyright complaint has been submitted successfully.")
         except Exception as e:
             print(f"Email Error: {e}")
@@ -272,8 +271,7 @@ def contact_page(request):
                 [settings.EMAIL_HOST_USER],
                 reply_to=[email]
             )
-            msg.send()
-            # Yahan message English mein kiya hai
+            msg.send(fail_silently=True)
             messages.success(request, "Your message has been sent successfully. We will get back to you soon.")
         except Exception as e:
             print(f"Email Error: {e}")
