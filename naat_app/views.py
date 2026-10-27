@@ -11,6 +11,21 @@ from django.conf import settings
 from django.utils import timezone
 from django.db.models import Sum
 import os, mimetypes, re, random
+import threading # NAYA IMPORT (Background Email ke liye)
+
+# Background Email Function (Taake server crash na ho)
+def send_email_background(subject, message, reply_to):
+    try:
+        msg = EmailMessage(
+            subject,
+            message,
+            settings.EMAIL_HOST_USER,
+            [settings.EMAIL_HOST_USER],
+            reply_to=[reply_to]
+        )
+        msg.send(fail_silently=True)
+    except Exception as e:
+        print(f"Email Error: {e}")
 
 def home(request):
     khawans = NaatKhawan.objects.all()
@@ -214,20 +229,10 @@ def copyright_page(request):
         subject = f"New Copyright Complaint from {name}"
         message = f"Name: {name}\nUser Email: {email}\n\nComplaint Details:\n{complaint}"
         
-        try:
-            msg = EmailMessage(
-                subject,
-                message,
-                settings.EMAIL_HOST_USER,
-                [settings.EMAIL_HOST_USER],
-                reply_to=[email]
-            )
-            msg.send(fail_silently=True)
-            messages.success(request, "Your copyright complaint has been submitted successfully.")
-        except Exception as e:
-            print(f"Email Error: {e}")
-            messages.error(request, "There was an error submitting your complaint. Please try again.")
-            
+        # Email background mein bhejein (Crash na ho)
+        threading.Thread(target=send_email_background, args=(subject, message, email)).start()
+        
+        messages.success(request, "Your copyright complaint has been submitted successfully.")
         return redirect('copyright_page')
 
     context = {'khawans': khawans, 'latest_naats': latest_naats, 'trending_naats': trending_naats, 'page_data': page_data}
@@ -259,24 +264,13 @@ def contact_page(request):
         message_text = request.POST.get('message', '')
         
         name = f"{first_name} {last_name}".strip()
-        
         subject = f"New Contact Message from {name}"
         full_message = f"Name: {name}\nUser Email: {email}\n\nMessage:\n{message_text}"
         
-        try:
-            msg = EmailMessage(
-                subject,
-                full_message,
-                settings.EMAIL_HOST_USER,
-                [settings.EMAIL_HOST_USER],
-                reply_to=[email]
-            )
-            msg.send(fail_silently=True)
-            messages.success(request, "Your message has been sent successfully. We will get back to you soon.")
-        except Exception as e:
-            print(f"Email Error: {e}")
-            messages.error(request, "There was an error sending your message. Please try again.")
-            
+        # Email background mein bhejein (Crash na ho)
+        threading.Thread(target=send_email_background, args=(subject, full_message, email)).start()
+        
+        messages.success(request, "Your message has been sent successfully. We will get back to you soon.")
         return redirect('contact_page')
     
     context = {'khawans': khawans, 'latest_naats': latest_naats, 'trending_naats': trending_naats, 'page_data': page_data}
