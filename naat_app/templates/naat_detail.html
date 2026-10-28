@@ -2,45 +2,21 @@
 {% block title %}{{ naat.title }} | Noor-e-Naat{% endblock %}
 
 {% block extra_css %}
-    /* UPDATED: Main Card ab Sticky hai */
-    .main-card { 
-        background: #fff; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); 
-        padding: 30px; margin-top: 20px; text-align: center; 
-        
-        /* Sticky Fix */
-        position: sticky;
-        top: 80px; /* Navbar ke neeche fix hoga */
-        z-index: 99; /* Taake list ke upar rahe */
-    }
-    
-    .naat-title { font-size: 28px; font-weight: 800; color: #1e7d5a; margin-bottom: 10px; }
-    .artist-badge { display: inline-flex; align-items: center; background: #f1f5f9; border: 1px solid #e2e8f0; padding: 5px 15px; border-radius: 50px; font-size: 14px; font-weight: 600; color: #475569; text-decoration: none; margin-bottom: 20px; }
+    .main-card { background: #fff; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); padding: 20px; margin-top: 20px; text-align: center; }
+    .naat-title { font-size: 24px; font-weight: 800; color: #1e7d5a; margin-bottom: 10px; }
+    .artist-badge { display: inline-flex; align-items: center; background: #f1f5f9; border: 1px solid #e2e8f0; padding: 6px 15px; border-radius: 50px; font-size: 13px; font-weight: 600; color: #475569; text-decoration: none; margin-bottom: 20px; }
     .artist-badge:hover { background: #e2e8f0; color: #1e7d5a; }
     
-    .top-player {
-        background: #f8f9fa; border-radius: 12px; padding: 15px 25px; margin: 0 auto 25px auto;
-        border: 1px solid #e2e8f0; max-width: 700px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-    }
-    .tp-title { font-size: 18px; font-weight: 700; color: #1e7d5a; margin-bottom: 5px;}
-    .tp-artist { font-size: 13px; color: #64748b; margin-bottom: 15px; }
-    
-    .tp-controls button { background: none; border: 1px solid #ccc; color: #333; padding: 5px 15px; border-radius: 4px; font-size: 13px; font-weight: 600; transition: 0.2s; margin-right: 5px;}
-    .tp-controls button:hover { background: #e2e8f0; }
-    
-    .custom-audio-wrapper { display: flex; align-items: center; gap: 10px; }
-    .audio-progress { flex-grow: 1; cursor: pointer; accent-color: #1e7d5a; }
-    .audio-time { font-size: 12px; font-weight: 600; color: #555; }
-
     /* STATS & ACTION BOXES */
-    .stats-row { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-top: 20px; }
-    .stat-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 15px; padding: 15px 10px; width: 130px; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: 0.2s; }
-    .stat-box i { color: #94a3b8; font-size: 18px; margin-bottom: 8px; }
-    .stat-box .label { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
-    .stat-box .value { font-size: 16px; font-weight: 800; color: #1e7d5a; margin-top: 5px; }
+    .stats-row { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
+    .stat-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 15px; padding: 15px 10px; width: 45%; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: 0.2s; }
+    .stat-box i { color: #94a3b8; font-size: 18px; margin-bottom: 5px; }
+    .stat-box .label { font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
+    .stat-box .value { font-size: 14px; font-weight: 800; color: #1e7d5a; margin-top: 3px; }
     
-    .action-btn { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 15px; width: 130px; padding: 15px 10px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; text-decoration: none; }
-    .action-btn i { font-size: 18px; margin-bottom: 8px; color: #94a3b8; transition: 0.2s; }
-    .action-btn .label { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
+    .action-btn { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 15px; width: 45%; padding: 15px 10px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; text-decoration: none; }
+    .action-btn i { font-size: 18px; margin-bottom: 5px; color: #94a3b8; transition: 0.2s; }
+    .action-btn .label { font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
     
     .action-btn:hover { border-color: #1e7d5a; transform: translateY(-3px); box-shadow: 0 4px 10px rgba(30,125,90,0.1); }
     .action-btn:hover i, .action-btn:hover .label { color: #1e7d5a; }
@@ -48,65 +24,95 @@
     .action-btn.fav { color: #ef4444; border-color: #fca5a5; background: #fef2f2; }
     .action-btn.fav i { color: #ef4444; }
     .action-btn.fav .label { color: #ef4444; }
+
+    /* Desktop view ke liye */
+    @media (min-width: 768px) {
+        .main-card { padding: 40px; }
+        .naat-title { font-size: 32px; }
+        .stat-box, .action-btn { width: 130px; }
+    }
     
-    .related-section { margin-top: 40px; }
-    .related-title { font-weight: 700; color: #333; margin-bottom: 20px; border-left: 4px solid #1e7d5a; padding-left: 10px; }
+    .related-section { margin-top: 30px; }
+    .related-title { font-weight: 700; color: #333; margin-bottom: 15px; border-left: 4px solid #1e7d5a; padding-left: 10px; font-size: 18px; }
+
+    /* TOP STICKY PLAYER */
+    .top-player {
+        background: #f1f5f9; border-radius: 12px; padding: 12px 15px; margin-bottom: 15px;
+        border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+    .tp-title { font-size: 16px; font-weight: 700; color: #1e7d5a; margin-bottom: 3px;}
+    .tp-artist { font-size: 12px; color: #64748b; margin-bottom: 10px; }
+    
+    .tp-controls button { background: none; border: 1px solid #ccc; color: #333; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600; transition: 0.2s; margin-right: 3px;}
+    .tp-controls button:hover { background: #e2e8f0; }
+    
+    .custom-audio-wrapper { display: flex; align-items: center; gap: 8px; }
+    .audio-progress { flex-grow: 1; cursor: pointer; accent-color: #1e7d5a; }
+    .audio-time { font-size: 11px; font-weight: 600; color: #555; }
 
     /* RELATED NAAT LIST */
-    .naat-list-item { background: #fff; border-radius: 8px; border: 1px solid #eaeaea; transition: 0.2s; margin-bottom: 8px; display: flex; align-items: center; padding: 10px 15px; cursor: pointer; }
+    .naat-list-item { background: #fff; border-radius: 8px; border: 1px solid #eaeaea; transition: 0.2s; margin-bottom: 8px; display: flex; align-items: center; padding: 10px; cursor: pointer; overflow: hidden; }
     .naat-list-item:hover { background: #f8f9fa; border-color: #ddd; }
     .naat-list-item.playing-now { background-color: #e8f5e9 !important; border-color: #1e7d5a !important; }
     .naat-list-item.playing-now .naat-title-small { color: #1e7d5a !important; font-weight: 800; }
 
-    .naat-title-small { font-size: 15px; font-weight: 600; color: #333; margin: 0; }
-    .naat-artist-small { font-size: 12px; color: #888; margin: 0; }
-    .naat-duration { font-size: 13px; font-weight: 600; color: #555; margin-right: 20px; width: 40px; text-align: right; }
+    .naat-title-small { font-size: 14px; font-weight: 600; color: #333; margin: 0; }
+    .naat-duration { font-size: 12px; font-weight: 600; color: #555; margin-right: 10px; width: 35px; text-align: right; flex-shrink: 0; }
 
-    .btn-play-list { color: #333; font-size: 16px; padding: 5px 10px; background: none; border: none; transition: 0.2s;}
+    .btn-play-list { color: #333; font-size: 15px; padding: 3px 6px; background: none; border: none; transition: 0.2s; flex-shrink: 0;}
     .btn-play-list:hover { color: #1e7d5a; transform: scale(1.1); }
-    .download-icon { color: #555; font-size: 16px; text-decoration: none; padding: 5px; }
+    .download-icon { color: #555; font-size: 15px; text-decoration: none; padding: 3px 6px; flex-shrink: 0;}
     .download-icon:hover { color: #1e7d5a; }
     
-    .fav-btn-small { background: none; border: none; color: #ccc; font-size: 17px; padding: 5px 8px; transition: 0.2s; }
+    .fav-btn-small { background: none; border: none; color: #ccc; font-size: 16px; padding: 3px 6px; transition: 0.2s; flex-shrink: 0;}
     .fav-btn-small:hover { color: #f59e0b; transform: scale(1.15); }
     .fav-btn-small.active { color: #f59e0b; }
 
     .duration-audio { width: 0; height: 0; opacity: 0; position: absolute; pointer-events: none; }
+
+    /* Mobile Fixes */
+    @media (max-width: 576px) {
+        .naat-title-small { font-size: 13px; }
+        .naat-duration { display: none; } 
+        .tp-controls { flex-wrap: wrap; gap: 5px; }
+        .tp-controls button { padding: 3px 8px; font-size: 11px; }
+        .artist-name-sm { display: none; }
+    }
 {% endblock %}
 
 {% block content %}
 <div class="container mt-3">
     
-    <!-- MAIN DETAILS CARD (Yeh ab sticky hai) -->
+    <!-- TOP PLAYER -->
+    <div class="top-player">
+        <div class="d-flex justify-content-between align-items-start">
+            <div>
+                <div class="tp-title" id="tp-title">No Naat Playing</div>
+                <div class="tp-artist" id="tp-artist">Select a naat from list below</div>
+            </div>
+        </div>
+        
+        <div class="custom-audio-wrapper mb-2">
+            <span class="audio-time" id="tp-current">0:00</span>
+            <input type="range" id="tp-progress" class="audio-progress" value="0" min="0" max="100" step="0.1">
+            <span class="audio-time" id="tp-duration">0:00</span>
+        </div>
+
+        <div class="tp-controls d-flex">
+            <button type="button" onclick="tpPrev()">Prev</button>
+            <button type="button" onclick="tpToggle()" id="tp-play-btn">Play / Pause</button>
+            <button type="button" onclick="tpNext()">Next</button>
+            <button type="button" onclick="tpShuffle()" id="tp-shuffle-btn">Shuffle</button>
+        </div>
+        <audio id="tp-audio" preload="none"></audio>
+    </div>
+
+    <!-- MAIN DETAILS -->
     <div class="main-card">
         <h1 class="naat-title" id="main-naat-title">{{ naat.title }}</h1>
         <a href="/?khawan={{ naat.naat_khawan.id }}" class="artist-badge" id="main-artist-badge"><i class="fa-solid fa-user me-2"></i> <span id="main-artist-name">{{ naat.naat_khawan.name }}</span></a>
 
-        <!-- PLAYER -->
-        <div class="top-player">
-            <div class="d-flex justify-content-between align-items-start">
-                <div>
-                    <div class="tp-title" id="tp-title">No Naat Playing</div>
-                    <div class="tp-artist" id="tp-artist">Select a naat from list below</div>
-                </div>
-            </div>
-            
-            <div class="custom-audio-wrapper mb-3">
-                <span class="audio-time" id="tp-current">0:00</span>
-                <input type="range" id="tp-progress" class="audio-progress" value="0" min="0" max="100" step="0.1">
-                <span class="audio-time" id="tp-duration">0:00</span>
-            </div>
-
-            <div class="tp-controls d-flex justify-content-center">
-                <button type="button" onclick="tpPrev()">Prev</button>
-                <button type="button" onclick="tpToggle()" id="tp-play-btn">Play / Pause</button>
-                <button type="button" onclick="tpNext()">Next</button>
-                <button type="button" onclick="tpShuffle()" id="tp-shuffle-btn">Shuffle</button>
-            </div>
-            <audio id="tp-audio" preload="none"></audio>
-        </div>
-
-        <!-- 5 BOXES -->
+        <!-- STATS & ACTION ROW -->
         <div class="stats-row">
             <div class="stat-box">
                 <i class="fa-solid fa-headphones"></i>
@@ -145,7 +151,7 @@
         </div>
     </div>
 
-    <!-- MORE NAATS LIST (Sirf yeh scroll hoga) -->
+    <!-- MORE NAATS LIST -->
     {% if related_naats %}
     <div class="related-section mb-5">
         <h4 class="related-title">More Naats by {{ naat.naat_khawan.name }}</h4>
@@ -162,15 +168,15 @@
                  data-date="{{ r_naat.uploaded_at|date:'M d, Y' }}"
                  onclick="tpPlay({{ r_naat.id }})">
                 
-                <div class="flex-grow-1 d-flex align-items-center">
+                <div class="flex-grow-1 d-flex align-items-center" style="min-width: 0;">
                     <p class="naat-title-small text-truncate mb-0">{{ r_naat.title }}</p>
-                    <span class="text-muted ms-3" style="font-size: 12px;"><i class="fa-solid fa-microphone"></i> {{ r_naat.naat_khawan.name }}</span>
+                    <span class="text-muted ms-2 d-none d-sm-inline artist-name-sm" style="font-size: 11px; white-space: nowrap;"><i class="fa-solid fa-microphone"></i> {{ r_naat.naat_khawan.name }}</span>
                 </div>
 
                 <div class="naat-duration" id="dur-{{ r_naat.id }}">--:--</div>
                 <audio class="duration-audio" id="hidden-audio-{{ r_naat.id }}" preload="metadata" src="{% url 'stream_naat' r_naat.id %}"></audio>
 
-                <div class="d-flex align-items-center gap-1">
+                <div class="d-flex align-items-center">
                     <a href="{% url 'download_naat' r_naat.id %}" class="download-icon" onclick="event.stopPropagation();" title="Download">
                         <i class="fa-solid fa-download"></i>
                     </a>
@@ -206,6 +212,7 @@
 
     Array.from(document.querySelectorAll('.naat-list-item')).forEach(function (el) {
         let isFav = el.querySelector('.fav-btn-small').classList.contains('active');
+        
         tpPlaylist.push({
             id: Number(el.dataset.id),
             title: el.dataset.title,

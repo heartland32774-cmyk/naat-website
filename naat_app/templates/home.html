@@ -73,6 +73,11 @@
     .top-khawan-rank { font-size: 12px; font-weight: 700; color: #fff; background: #f59e0b; width: 25px; height: 25px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; margin-bottom: 5px; }
     .top-khawan-name { font-size: 14px; font-weight: 700; color: #333; margin-bottom: 3px; display: block; }
     .top-khawan-views { font-size: 11px; color: #64748b; }
+
+    @media (max-width: 768px) {
+        .hadees-text-arabic { font-size: 20px; }
+        .hadees-tarjuma { font-size: 14px; }
+    }
 {% endblock %}
 
 {% block content %}
@@ -96,7 +101,7 @@
     </div>
 
     <div class="row">
-        <!-- LEFT SIDEBAR -->
+        <!-- LEFT SIDEBAR (Desktop Only) -->
         <div class="col-md-3 col-lg-2 sidebar d-none d-md-block">
             <h5><i class="fa-solid fa-microphone-lines me-1"></i> Naat Khawans</h5>
             {% for khawan in khawans %}
@@ -164,9 +169,38 @@
                 {% endfor %}
             </div>
 
+            <!-- MOBILE ONLY WIDGETS (Neeche show honge) -->
+            <div class="d-block d-md-none mt-4">
+                <div class="right-widget">
+                    <h5><i class="fa-solid fa-clock-rotate-left me-2"></i>Latest MP3 Naats</h5>
+                    {% for l_naat in latest_naats %}
+                    <div class="widget-item">
+                        <i class="fa-solid fa-circle-play widget-icon"></i>
+                        <div class="widget-text">
+                            <a href="{% url 'naat_detail' l_naat.id %}?autoplay=1">{{ l_naat.title }}</a>
+                            <small><i class="fa-solid fa-user me-1"></i>{{ l_naat.naat_khawan.name }}</small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="right-widget">
+                    <h5><i class="fa-solid fa-fire text-danger me-2"></i>Top Trending Naats 2026</h5>
+                    {% for t_naat in trending_naats %}
+                    <div class="widget-item">
+                        <i class="fa-solid fa-arrow-trend-up text-danger widget-icon"></i>
+                        <div class="widget-text">
+                            <a href="{% url 'naat_detail' t_naat.id %}?autoplay=1">{{ t_naat.title }}</a>
+                            <small>By {{ t_naat.naat_khawan.name }} | <i class="fa-solid fa-headphones"></i> {{ t_naat.views }}</small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
         </div>
 
-        <!-- RIGHT SIDEBAR -->
+        <!-- RIGHT SIDEBAR (Desktop Only) -->
         <div class="col-md-3 col-lg-3 d-none d-md-block mt-4">
             <div class="right-widget">
                 <h5><i class="fa-solid fa-clock-rotate-left me-2"></i>Latest MP3 Naats</h5>
@@ -174,7 +208,6 @@
                 <div class="widget-item">
                     <i class="fa-solid fa-circle-play widget-icon"></i>
                     <div class="widget-text">
-                        <!-- Yahan ?autoplay=1 hai -->
                         <a href="{% url 'naat_detail' l_naat.id %}?autoplay=1">{{ l_naat.title }}</a>
                         <small><i class="fa-solid fa-user me-1"></i>{{ l_naat.naat_khawan.name }}</small>
                     </div>
@@ -190,7 +223,6 @@
                 <div class="widget-item">
                     <i class="fa-solid fa-arrow-trend-up text-danger widget-icon"></i>
                     <div class="widget-text">
-                        <!-- Yahan bhi ?autoplay=1 add kar diya hai -->
                         <a href="{% url 'naat_detail' t_naat.id %}?autoplay=1">{{ t_naat.title }}</a>
                         <small>By {{ t_naat.naat_khawan.name }} | <i class="fa-solid fa-headphones"></i> {{ t_naat.views }}</small>
                     </div>
