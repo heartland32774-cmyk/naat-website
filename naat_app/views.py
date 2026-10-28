@@ -9,8 +9,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core.mail import send_mail, EmailMessage
 from django.conf import settings
 from django.utils import timezone
-from django.db.models import Sum
-import os, mimetypes, re, random
+from django.db.models import Sum, Count, Q
+import os, mimetypes, re, random, json
 import threading
 
 # Background Email Function
@@ -62,84 +62,128 @@ def home(request):
     return render(request, 'home.html', context)
 
 def all_naat_khawans(request):
-    khawans = NaatKhawan.objects.all()
-    for khawan in khawans:
-        khawan.naat_count = Naat.objects.filter(naat_khawan=khawan, is_live=True).count()
+    khawans = NaatKhawan.objects.annotate(
+        naat_count=Count('naats', filter=Q(naats__is_live=True))
+    ).order_by('id')
     latest_naats = Naat.objects.filter(is_live=True).order_by('-uploaded_at')[:10]
     trending_naats = Naat.objects.filter(is_live=True).order_by('-views')[:10]
     context = {'khawans': khawans, 'latest_naats': latest_naats, 'trending_naats': trending_naats}
     return render(request, 'all_khawans.html', context)
 
+# NAYA FUNCTION: Live Search API for Khawans
+def search_khawans_api(request):
+    query = request.GET.get('q', '').strip()
+    if query:
+        khawans = NaatKhawan.objects.filter(name__icontains=query).annotate(
+            naat_count=Count('naats', filter=Q(naats__is_live=True))
+        ).order_by('id')
+    else:
+        khawans = NaatKhawan.objects.annotate(
+            naat_count=Count('naats', filter=Q(naats__is_live=True))
+        ).order_by('id')
+    
+    data = []
+    for khawan in khawans:
+        data.append({
+            'id': khawan.id,
+            'name': khawan.name,
+            'image': khawan.image.url if khawan.image else '',
+            'naat_count': khawan.naat_count,
+        })
+    
+    return JsonResponse({'khawans': data})
+
 def all_naats(request):
-    khawans = NaatKhawan.objects.all()
+    khawans = NaatKhawan.objects.annotate(
+        naat_count=Count('naats', filter=Q(naats__is_live=True))
+    ).order_by('id')
     naats = Naat.objects.filter(is_live=True).order_by('-uploaded_at')
+    
+    favorite_ids = []
+    if request.user.is_authenticated:
+        favorite_ids = list(Favorite.objects.filter(user=request.user).values_list('naat_id', flat=True))
+
     latest_naats = Naat.objects.filter(is_live=True).order_by('-uploaded_at')[:10]
     trending_naats = Naat.objects.filter(is_live=True).order_by('-views')[:10]
-    for k in khawans:
-        k.naat_count = Naat.objects.filter(naat_khawan=k, is_live=True).count()
-
-    if request.user.is_authenticated:
-        user_favs = Favorite.objects.filter(user=request.user).values_list('naat_id', flat=True)
-        for naat in naats:
-            naat.is_fav = naat.id in user_favs
-    else:
-        for naat in naats:
-            naat.is_fav = False
 
     context = {
         'naats': naats, 'khawans': khawans, 'latest_naats': latest_naats, 
         'trending_naats': trending_naats, 'page_title': "All Naats", 
-        'page_subtitle': "All available naats on Noor-e-Naat."
+        'page_subtitle': "All available naats on Noor-e-Naat.",
+        'favorite_ids': favorite_ids,
     }
     return render(request, 'all_naats.html', context)
 
 def naat_khawan_profile(request, khawan_id):
     khawan = get_object_or_404(NaatKhawan, id=khawan_id)
-    naats_list = list(Naat.objects.filter(naat_khawan=khawan, is_live=True).order_by('-uploaded_at'))
-    for i, naat in enumerate(naats_list):
-        naat.prev_id = naats_list[i-1].id if i > 0 else None
-        naat.next_id = naats_list[i+1].id if i < len(naats_list)-1 else None
-
+    naats_query = Naat.objects.filter(naat_khawan=khawan, is_live=True).order_by('-uploaded_at')
+    
+    query = request.GET.get('q')
+    if query:
+        naats_query = naats_query.filter(title__icontains=query)
+        
+    naats_list = list(naats_query)
+    
+    favorite_ids = []
     if request.user.is_authenticated:
-        user_favs = Favorite.objects.filter(user=request.user).values_list('naat_id', flat=True)
-        for naat in naats_list:
-            naat.is_fav = naat.id in user_favs
-    else:
-        for naat in naats_list:
-            naat.is_fav = False
+        favorite_ids = list(Favorite.objects.filter(user=request.user).values_list('naat_id', flat=True))
 
-    khawans = NaatKhawan.objects.all()
+    khawans = NaatKhawan.objects.annotate(naat_count=Count('naats', filter=Q(naats__is_live=True))).order_by('id')
     latest_naats = Naat.objects.filter(is_live=True).order_by('-uploaded_at')[:10]
     trending_naats = Naat.objects.filter(is_live=True).order_by('-views')[:10]
-    for k in khawans:
-        k.naat_count = Naat.objects.filter(naat_khawan=k, is_live=True).count()
 
     context = {
         'khawan': khawan, 'naats': naats_list, 'khawans': khawans,
         'latest_naats': latest_naats, 'trending_naats': trending_naats,
+        'search_query': query, 'favorite_ids': favorite_ids,
     }
     return render(request, 'profile.html', context)
 
+# NAYA FUNCTION: Live Search API for Profile Naats
+def search_profile_naats_api(request, khawan_id):
+    query = request.GET.get('q', '').strip()
+    khawan = get_object_or_404(NaatKhawan, id=khawan_id)
+    
+    naats = Naat.objects.filter(naat_khawan=khawan, is_live=True)
+    if query:
+        naats = naats.filter(title__icontains=query)
+    naats = naats.order_by('-uploaded_at')
+    
+    favorite_ids = []
+    if request.user.is_authenticated:
+        favorite_ids = list(Favorite.objects.filter(user=request.user).values_list('naat_id', flat=True))
+    
+    data = []
+    for naat in naats:
+        data.append({
+            'id': naat.id,
+            'title': naat.title,
+            'artist': naat.naat_khawan.name,
+            'url': f"/stream/{naat.id}/",
+            'is_fav': naat.id in favorite_ids,
+            'views': naat.views
+        })
+    
+    return JsonResponse({'naats': data})
+
 def popular_naats(request):
-    khawans = NaatKhawan.objects.all()
+    khawans = NaatKhawan.objects.annotate(
+        naat_count=Count('naats', filter=Q(naats__is_live=True))
+    ).order_by('id')
     naats = Naat.objects.filter(is_live=True).order_by('-views')[:30]
+    
+    favorite_ids = []
+    if request.user.is_authenticated:
+        favorite_ids = list(Favorite.objects.filter(user=request.user).values_list('naat_id', flat=True))
+
     latest_naats = Naat.objects.filter(is_live=True).order_by('-uploaded_at')[:10]
     trending_naats = Naat.objects.filter(is_live=True).order_by('-views')[:10]
-    for k in khawans:
-        k.naat_count = Naat.objects.filter(naat_khawan=k, is_live=True).count()
-
-    if request.user.is_authenticated:
-        user_favs = Favorite.objects.filter(user=request.user).values_list('naat_id', flat=True)
-        for naat in naats:
-            naat.is_fav = naat.id in user_favs
-    else:
-        for naat in naats:
-            naat.is_fav = False
 
     context = {
         'naats': naats, 'khawans': khawans, 'latest_naats': latest_naats, 
         'trending_naats': trending_naats, 'page_title': "Top 30 Popular Naats", 
-        'page_subtitle': "Top 30 most listened naats of all time."
+        'page_subtitle': "Top 30 most listened naats of all time.",
+        'favorite_ids': favorite_ids,
     }
     return render(request, 'popular.html', context)
 
@@ -147,19 +191,59 @@ def naat_detail(request, naat_id):
     naat = get_object_or_404(Naat, id=naat_id)
     naat.views += 1
     naat.save()
+    
     all_naats_list = list(Naat.objects.filter(naat_khawan=naat.naat_khawan, is_live=True).order_by('id'))
     prev_naat = None
     next_naat = None
     current_index = next((i for i, n in enumerate(all_naats_list) if n.id == naat.id), None)
+    
     if current_index is not None:
         if current_index > 0: prev_naat = all_naats_list[current_index - 1]
         if current_index < len(all_naats_list) - 1: next_naat = all_naats_list[current_index + 1]
-    related_naats = all_naats_list[:4]
+    
+    related_naats = [n for n in all_naats_list if n.id != naat.id]
+    
+    for i, r_naat in enumerate(related_naats):
+        r_naat.prev_id = related_naats[i-1].id if i > 0 else None
+        r_naat.next_id = related_naats[i+1].id if i < len(related_naats)-1 else None
+
     is_favorite = False
+    favorite_ids = []
     if request.user.is_authenticated:
         is_favorite = Favorite.objects.filter(user=request.user, naat=naat).exists()
-    context = {'naat': naat, 'related_naats': related_naats, 'is_favorite': is_favorite, 'prev_naat': prev_naat, 'next_naat': next_naat}
+        favorite_ids = list(Favorite.objects.filter(user=request.user).values_list('naat_id', flat=True))
+        
+    context = {
+        'naat': naat, 
+        'related_naats': related_naats, 
+        'is_favorite': is_favorite, 
+        'prev_naat': prev_naat, 
+        'next_naat': next_naat,
+        'favorite_ids': favorite_ids,
+    }
     return render(request, 'naat_detail.html', context)
+
+def play_naat_ajax(request, naat_id):
+    naat = get_object_or_404(Naat, id=naat_id)
+    naat.views += 1
+    naat.save()
+    
+    all_naats = list(Naat.objects.filter(naat_khawan=naat.naat_khawan, is_live=True).order_by('id'))
+    current_index = next((i for i, n in enumerate(all_naats) if n.id == naat.id), None)
+    
+    prev_id = all_naats[current_index - 1].id if current_index > 0 else None
+    next_id = all_naats[current_index + 1].id if current_index < len(all_naats) - 1 else None
+    
+    return JsonResponse({
+        'status': 'success',
+        'id': naat.id,
+        'title': naat.title,
+        'artist': naat.naat_khawan.name,
+        'audio_url': naat.audio_file.url,
+        'prev_id': prev_id,
+        'next_id': next_id,
+        'initial': naat.title[0].upper() if naat.title else ''
+    })
 
 @csrf_exempt
 def increment_view(request, naat_id):
@@ -182,19 +266,48 @@ def toggle_favorite(request, naat_id):
     return redirect(request.META.get('HTTP_REFERER', 'home'))
 
 @login_required(login_url='/login/')
+def toggle_favorite_api(request, naat_id):
+    if request.method == 'POST':
+        try:
+            naat = Naat.objects.get(id=naat_id)
+            fav, created = Favorite.objects.get_or_create(user=request.user, naat=naat)
+            if not created:
+                fav.delete()
+                return JsonResponse({'status': 'success', 'favorited': False})
+            return JsonResponse({'status': 'success', 'favorited': True})
+        except Naat.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Naat not found'}, status=404)
+    return JsonResponse({'status': 'error'}, status=400)
+
+@login_required(login_url='/login/')
+def check_favorite_api(request, naat_id):
+    is_fav = Favorite.objects.filter(user=request.user, naat_id=naat_id).exists()
+    return JsonResponse({'favorited': is_fav})
+
+@login_required(login_url='/login/')
 def my_favorites(request):
     favorites = Favorite.objects.filter(user=request.user).order_by('-created_at')
     naats = [fav.naat for fav in favorites]
-    khawans = NaatKhawan.objects.all() 
-    for k in khawans:
-        k.naat_count = Naat.objects.filter(naat_khawan=k, is_live=True).count()
-    context = {'naats': naats, 'khawans': khawans}
+    
+    favorite_ids = [fav.naat.id for fav in favorites]
+    
+    khawans = NaatKhawan.objects.annotate(
+        naat_count=Count('naats', filter=Q(naats__is_live=True))
+    ).order_by('id')
+
+    latest_naats = Naat.objects.filter(is_live=True).order_by('-uploaded_at')[:10]
+    trending_naats = Naat.objects.filter(is_live=True).order_by('-views')[:10]
+
+    context = {
+        'naats': naats, 'khawans': khawans, 'latest_naats': latest_naats, 
+        'trending_naats': trending_naats, 'favorite_ids': favorite_ids
+    }
     return render(request, 'favorites.html', context)
 
 def copyright_page(request):
-    khawans = NaatKhawan.objects.all()
-    for k in khawans: 
-        k.naat_count = Naat.objects.filter(naat_khawan=k, is_live=True).count()
+    khawans = NaatKhawan.objects.annotate(
+        naat_count=Count('naats', filter=Q(naats__is_live=True))
+    ).order_by('id')
     latest_naats = Naat.objects.filter(is_live=True).order_by('-uploaded_at')[:10]
     trending_naats = Naat.objects.filter(is_live=True).order_by('-views')[:10]
     page_data = PageContent.objects.filter(page_name='copyright').first()
@@ -216,9 +329,9 @@ def copyright_page(request):
     return render(request, 'pages/copyright.html', context)
 
 def privacy_page(request):
-    khawans = NaatKhawan.objects.all()
-    for k in khawans: 
-        k.naat_count = Naat.objects.filter(naat_khawan=k, is_live=True).count()
+    khawans = NaatKhawan.objects.annotate(
+        naat_count=Count('naats', filter=Q(naats__is_live=True))
+    ).order_by('id')
     latest_naats = Naat.objects.filter(is_live=True).order_by('-uploaded_at')[:10]
     trending_naats = Naat.objects.filter(is_live=True).order_by('-views')[:10]
     page_data = PageContent.objects.filter(page_name='privacy').first()
@@ -226,9 +339,9 @@ def privacy_page(request):
     return render(request, 'pages/privacy.html', context)
 
 def contact_page(request):
-    khawans = NaatKhawan.objects.all()
-    for k in khawans: 
-        k.naat_count = Naat.objects.filter(naat_khawan=k, is_live=True).count()
+    khawans = NaatKhawan.objects.annotate(
+        naat_count=Count('naats', filter=Q(naats__is_live=True))
+    ).order_by('id')
     latest_naats = Naat.objects.filter(is_live=True).order_by('-uploaded_at')[:10]
     trending_naats = Naat.objects.filter(is_live=True).order_by('-views')[:10]
     page_data = PageContent.objects.filter(page_name='contact').first()
@@ -249,7 +362,6 @@ def contact_page(request):
     context = {'khawans': khawans, 'latest_naats': latest_naats, 'trending_naats': trending_naats, 'page_data': page_data}
     return render(request, 'pages/contact.html', context)
 
-# NAYA: Reply Function (Admin panel se reply karne ke liye)
 def reply_message(request, message_id):
     msg = get_object_or_404(ContactMessage, id=message_id)
     
@@ -266,7 +378,6 @@ def reply_message(request, message_id):
             messages.success(request, "Reply sent successfully!")
         except Exception as e:
             messages.error(request, f"Error: {e}")
-        # Wapas Admin panel ki list par bhejein
         return redirect('/admin/naat_app/contactmessage/') 
 
     return render(request, 'admin/reply_form.html', {'msg': msg})

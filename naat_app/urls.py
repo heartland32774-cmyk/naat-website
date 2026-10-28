@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from django.contrib import admin
 
 urlpatterns = [
     # Main Pages
@@ -14,17 +15,29 @@ urlpatterns = [
     path('stream/<int:naat_id>/', views.stream_naat, name='stream_naat'),
     path('download/<int:naat_id>/', views.download_naat, name='download_naat'),
     
-    # AJAX View Counter
+    # AJAX Rasta (Next/Prev ke liye)
+    path('api/play-naat/<int:naat_id>/', views.play_naat_ajax, name='play_naat_ajax'),
+    
+    # View Counter
     path('api/increment-view/<int:naat_id>/', views.increment_view, name='increment_view'),
     
     # Favorites
     path('favorite/<int:naat_id>/', views.toggle_favorite, name='toggle_favorite'),
+    path('api/toggle-favorite/<int:naat_id>/', views.toggle_favorite_api, name='toggle_favorite_api'),
+    path('api/check-favorite/<int:naat_id>/', views.check_favorite_api, name='check_favorite_api'),
     path('my-favorites/', views.my_favorites, name='my_favorites'),
+
+    # Live Search APIs
+    path('api/search-khawans/', views.search_khawans_api, name='search_khawans_api'),
+    path('api/search-profile-naats/<int:khawan_id>/', views.search_profile_naats_api, name='search_profile_naats_api'), # <-- YEH NAYA RASTA
     
     # Info Pages
     path('copyright/', views.copyright_page, name='copyright_page'),
     path('privacy/', views.privacy_page, name='privacy_page'),
     path('contact/', views.contact_page, name='contact_page'),
+
+    # Admin Reply
+    path('admin/reply/<int:message_id>/', admin.site.admin_view(views.reply_message), name='reply_contact_message'),
 
     # Authentication
     path('login/', views.user_login, name='login'),

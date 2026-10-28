@@ -12,24 +12,13 @@
     
     <style>
         body { background-color: #f8f9fa; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; min-height: 100vh; }
-        .content-wrapper { flex: 1; }
+        .content-wrapper { flex: 1; padding-bottom: 90px; }
         .navbar { background-color: #ffffff; border-bottom: 1px solid #e0e0e0; padding: 8px 0; }
         
-        /* Logo Styling */
-                .navbar-brand img { 
-            height: 90px;  /* Yahan size barha diya hai */
-            width: auto; 
-            object-fit: contain; 
-            margin-top: -10px; /* Taake navbar ke sath align rahe */
-            margin-bottom: -10px;
-        }
-        
+        .navbar-brand img { height: 90px; width: auto; object-fit: contain; margin-top: -10px; margin-bottom: -10px; }
         .nav-link { font-weight: 600; color: #555 !important; margin: 0 5px; font-size: 14px; transition: 0.2s; border-bottom: 3px solid transparent; padding-bottom: 5px; }
         .nav-link:hover { color: #1e7d5a !important; }
-        
-        /* ACTIVE TAB DESIGN */
         .nav-link.active { color: #1e7d5a !important; border-bottom: 3px solid #1e7d5a; }
-
         .urdu-text { font-family: 'Noto Nastaliq Urdu', serif; direction: rtl; }
         
         .footer { background-color: #1a1a1a; color: #d1d5db; padding: 50px 0 20px 0; margin-top: auto; }
@@ -39,6 +28,31 @@
         .footer .social-icons a { display: inline-flex; align-items: center; justify-content: center; width: 35px; height: 35px; border-radius: 50%; background: #333; color: #fff; margin-right: 10px; transition: 0.3s; }
         .footer .social-icons a:hover { background: #1e7d5a; padding-left: 0; transform: translateY(-3px); }
         .footer-bottom { border-top: 1px solid #333; padding-top: 20px; margin-top: 30px; text-align: center; font-size: 13px; color: #888; }
+
+        /* GLOBAL PLAYER */
+        .global-player {
+            position: fixed; bottom: 0; left: 0; width: 100%; background: #ffffff;
+            border-top: 2px solid #1e7d5a; box-shadow: 0 -4px 15px rgba(0,0,0,0.1);
+            padding: 10px 20px; z-index: 1050; display: none;
+        }
+        .gp-info img { width: 45px; height: 45px; object-fit: cover; border-radius: 8px; }
+        .gp-title { font-size: 14px; font-weight: 700; color: #333; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; margin-bottom: -2px;}
+        .gp-artist { font-size: 12px; color: #64748b; display: block; }
+        
+        .gp-btn { background: none; border: none; color: #1e7d5a; font-size: 18px; cursor: pointer; transition: 0.2s; padding: 5px 10px; }
+        .gp-btn:hover { transform: scale(1.15); color: #166347; }
+        .gp-btn.active { color: #f59e0b; }
+        .gp-play-btn { background: #1e7d5a; color: white; border-radius: 50%; width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center; font-size: 16px; border: none; transition: 0.2s;}
+        .gp-play-btn:hover { background: #166347; transform: scale(1.05); }
+
+        .gp-progress { flex-grow: 1; margin: 0 15px; display: flex; align-items: center; gap: 10px;}
+        .gp-progress input[type="range"] { width: 100%; accent-color: #1e7d5a; cursor: pointer; }
+        .gp-time { font-size: 11px; font-weight: 600; color: #64748b; width: 35px; text-align: center; }
+
+        @media (max-width: 768px) {
+            .gp-progress { display: none; }
+            .gp-title { max-width: 100px; }
+        }
         
         {% block extra_css %}{% endblock %}
     </style>
@@ -47,7 +61,6 @@
 
     <nav class="navbar navbar-expand-lg sticky-top shadow-sm">
         <div class="container-fluid px-4">
-            <!-- YAHAN LOGO LAGA HAI -->
             <a class="navbar-brand d-flex align-items-center" href="/">
                 <img src="{% static 'images/logo.png' %}" alt="Noor-e-Naat Logo">
             </a>
@@ -58,50 +71,26 @@
             
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav mx-auto">
-                    
                     <li class="nav-item">
-                        <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">
-                            <i class="fa-solid fa-house me-1"></i> Home
-                        </a>
+                        <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}"><i class="fa-solid fa-house me-1"></i> Home</a>
                     </li>
-                    
                     <li class="nav-item">
-                        <a class="nav-link {% if request.resolver_match.url_name == 'all_naat_khawans' or request.resolver_match.url_name == 'khawan_profile' %}active{% endif %}" href="{% url 'all_naat_khawans' %}">
-                            <i class="fa-solid fa-microphone-lines me-1"></i> Naat Khawans
-                        </a>
+                        <a class="nav-link {% if request.resolver_match.url_name == 'all_naat_khawans' or request.resolver_match.url_name == 'khawan_profile' %}active{% endif %}" href="{% url 'all_naat_khawans' %}"><i class="fa-solid fa-microphone-lines me-1"></i> Naat Khawans</a>
                     </li>
-
                     <li class="nav-item">
-                        <a class="nav-link {% if request.resolver_match.url_name == 'all_naats' %}active{% endif %}" href="{% url 'all_naats' %}">
-                            <i class="fa-solid fa-music me-1"></i> Naats
-                        </a>
+                        <a class="nav-link {% if request.resolver_match.url_name == 'all_naats' %}active{% endif %}" href="{% url 'all_naats' %}"><i class="fa-solid fa-music me-1"></i> Naats</a>
                     </li>
-
                     <li class="nav-item">
-                        <a class="nav-link {% if request.resolver_match.url_name == 'popular_naats' %}active{% endif %}" href="{% url 'popular_naats' %}">
-                            <i class="fa-solid fa-fire text-danger me-1"></i> Popular Naats
-                        </a>
+                        <a class="nav-link {% if request.resolver_match.url_name == 'popular_naats' %}active{% endif %}" href="{% url 'popular_naats' %}"><i class="fa-solid fa-fire text-danger me-1"></i> Popular Naats</a>
                     </li>
-                    
                     {% if user.is_authenticated %}
                     <li class="nav-item">
-                        <a class="nav-link {% if request.resolver_match.url_name == 'my_favorites' %}active{% endif %}" href="{% url 'my_favorites' %}">
-                            <i class="fa-regular fa-star me-1"></i> My Favorites
-                        </a>
+                        <a class="nav-link {% if request.resolver_match.url_name == 'my_favorites' %}active{% endif %}" href="{% url 'my_favorites' %}"><i class="fa-regular fa-star me-1"></i> My Favorites</a>
                     </li>
                     {% endif %}
-                    
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.resolver_match.url_name == 'copyright_page' %}active{% endif %}" href="{% url 'copyright_page' %}">Copyright</a>
-                    </li>
-                    
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.resolver_match.url_name == 'privacy_page' %}active{% endif %}" href="{% url 'privacy_page' %}">Privacy</a>
-                    </li>
-                    
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.resolver_match.url_name == 'contact_page' %}active{% endif %}" href="{% url 'contact_page' %}">Contact</a>
-                    </li>
+                    <li class="nav-item"><a class="nav-link {% if request.resolver_match.url_name == 'copyright_page' %}active{% endif %}" href="{% url 'copyright_page' %}">Copyright</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.resolver_match.url_name == 'privacy_page' %}active{% endif %}" href="{% url 'privacy_page' %}">Privacy</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.resolver_match.url_name == 'contact_page' %}active{% endif %}" href="{% url 'contact_page' %}">Contact</a></li>
                 </ul>
                 
                 <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0">
@@ -129,13 +118,21 @@
         {% block content %}{% endblock %}
     </div>
 
+    <!-- UPDATED FOOTER -->
     <footer class="footer">
         <div class="container">
             <div class="row">
+                <!-- TOP 5 TRENDING NAATS -->
                 <div class="col-md-4 mb-4 text-center text-md-start">
-                    <!-- Footer mein bhi logo laga sakte hain -->
-                    <img src="{% static 'images/logo.png' %}" alt="Noor-e-Naat" style="height: 50px; margin-bottom: 10px; filter: brightness(0) invert(1);">
-                    <p style="font-size: 14px; line-height: 1.6;">Listen to the most beautiful and soulful Naats from your favorite Naat Khawans. A platform dedicated to spiritual peace and devotion.</p>
+                    <h5>Top 5 Trending Naats</h5>
+                    {% for t_naat in trending_naats|slice:":5" %}
+                        <a href="{% url 'naat_detail' t_naat.id %}?autoplay=1" class="text-truncate d-block" style="max-width: 250px; margin-bottom: 8px; color: #d1d5db;">
+                            <i class="fa-solid fa-arrow-trend-up me-1" style="font-size: 12px; color: #1e7d5a;"></i> 
+                            {{ t_naat.title }}
+                        </a>
+                    {% empty %}
+                        <p class="small text-muted">No trending naats available.</p>
+                    {% endfor %}
                 </div>
                 
                 <div class="col-md-4 mb-4 text-center text-md-start">
@@ -165,6 +162,216 @@
         </div>
     </footer>
 
+    <!-- GLOBAL PLAYER BAR -->
+    <div class="global-player" id="global-player">
+        <div class="d-flex align-items-center justify-content-between">
+            
+            <div class="gp-info d-flex align-items-center gap-3">
+                <img id="gp-image" src="" alt="Cover" onerror="this.style.display='none'">
+                <div>
+                    <span class="gp-title" id="gp-title">Naat Title</span>
+                    <span class="gp-artist" id="gp-artist">Naat Khawan</span>
+                </div>
+            </div>
+
+            <div class="d-flex align-items-center gap-2">
+                <button class="gp-btn" id="gp-shuffle" onclick="toggleShuffle()" title="Shuffle"><i class="fa-solid fa-shuffle"></i></button>
+                <button class="gp-btn" onclick="playPrev()" title="Previous"><i class="fa-solid fa-backward-step"></i></button>
+                <button class="gp-play-btn" id="gp-play-btn" onclick="togglePlayPause()"><i class="fa-solid fa-play"></i></button>
+                <button class="gp-btn" onclick="playNext()" title="Next"><i class="fa-solid fa-forward-step"></i></button>
+                <button class="gp-btn" id="gp-repeat" onclick="toggleRepeat()" title="Repeat"><i class="fa-solid fa-repeat"></i></button>
+            </div>
+
+            <div class="gp-progress">
+                <span class="gp-time" id="gp-current-time">0:00</span>
+                <input type="range" id="gp-progress" value="0" min="0" max="100" step="0.1" oninput="seekAudio(this.value)">
+                <span class="gp-time" id="gp-total-time">0:00</span>
+            </div>
+
+        </div>
+        <audio id="gp-audio" ontimeupdate="updateProgress()" onloadedmetadata="setDuration()" onended="handleAudioEnd()"></audio>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- GLOBAL PLAYER SCRIPT -->
+    <script>
+        let playlist = [];
+        let currentIndex = -1;
+        let isPlaying = false;
+        let isShuffle = false;
+        let repeatMode = 0; 
+
+        const audio = document.getElementById('gp-audio');
+        const playBtn = document.getElementById('gp-play-btn');
+        const gpBar = document.getElementById('global-player');
+        const progressBar = document.getElementById('gp-progress');
+        const currentTimeEl = document.getElementById('gp-current-time');
+        const totalTimeEl = document.getElementById('gp-total-time');
+        const titleEl = document.getElementById('gp-title');
+        const artistEl = document.getElementById('gp-artist');
+        const imageEl = document.getElementById('gp-image');
+
+        function initPlayer(newPlaylist) {
+            playlist = newPlaylist;
+        }
+
+        function playNaat(id) {
+            let index = playlist.findIndex(n => n.id === id);
+            if(index === -1) return;
+            
+            if(currentIndex === index && gpBar.style.display === 'block') {
+                togglePlayPause();
+                return;
+            }
+            
+            currentIndex = index;
+            loadAudio();
+        }
+
+        function loadAudio() {
+            if(currentIndex < 0 || currentIndex >= playlist.length) return;
+            
+            let naat = playlist[currentIndex];
+            audio.src = naat.url;
+            titleEl.innerText = naat.title;
+            artistEl.innerText = naat.artist;
+            
+            if(naat.image) {
+                imageEl.src = naat.image;
+                imageEl.style.display = 'block';
+            } else {
+                imageEl.style.display = 'none';
+            }
+
+            gpBar.style.display = 'block';
+            
+            let playPromise = audio.play();
+            if (playPromise !== undefined) {
+                playPromise.then(_ => {
+                    isPlaying = true;
+                    playBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+                }).catch(error => {
+                    console.log("Playback error:", error);
+                    isPlaying = false;
+                    playBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
+                });
+            }
+            
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "/api/increment-view/" + naat.id + "/", true);
+            xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+            xhr.send();
+            
+            if(typeof updateListUI === 'function') { updateListUI(naat.id, true); }
+            document.querySelectorAll('.naat-card').forEach(c => c.classList.remove('playing-now'));
+            let activeCard = document.getElementById('profile-card-' + naat.id);
+            if(activeCard) activeCard.classList.add('playing-now');
+        }
+
+        function togglePlayPause() {
+            if(audio.paused) {
+                audio.play();
+                isPlaying = true;
+                playBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+            } else {
+                audio.pause();
+                isPlaying = false;
+                playBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
+            }
+            if(currentIndex > -1 && typeof updateListUI === 'function') {
+                updateListUI(playlist[currentIndex].id, isPlaying);
+            }
+        }
+
+        function playNext() {
+            if(playlist.length === 0) return;
+            if(isShuffle) {
+                currentIndex = Math.floor(Math.random() * playlist.length);
+            } else {
+                currentIndex++;
+                if(currentIndex >= playlist.length) currentIndex = 0;
+            }
+            loadAudio();
+        }
+
+        function playPrev() {
+            if(playlist.length === 0) return;
+            if(isShuffle) {
+                currentIndex = Math.floor(Math.random() * playlist.length);
+            } else {
+                currentIndex--;
+                if(currentIndex < 0) currentIndex = playlist.length - 1;
+            }
+            loadAudio();
+        }
+
+        function handleAudioEnd() {
+            if(repeatMode === 2) {
+                audio.play(); 
+            } else if(repeatMode === 1) {
+                playNext(); 
+            } else {
+                if(currentIndex === playlist.length - 1) {
+                    audio.pause();
+                    isPlaying = false;
+                    playBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
+                    document.querySelectorAll('.naat-card').forEach(c => c.classList.remove('playing-now'));
+                    if(typeof updateListUI === 'function') { updateListUI(null, false); }
+                } else {
+                    playNext(); 
+                }
+            }
+        }
+
+        function toggleShuffle() {
+            isShuffle = !isShuffle;
+            document.getElementById('gp-shuffle').classList.toggle('active', isShuffle);
+        }
+
+        function toggleRepeat() {
+            let btn = document.getElementById('gp-repeat');
+            if(repeatMode === 0) {
+                repeatMode = 1;
+                btn.innerHTML = '<i class="fa-solid fa-repeat"></i>';
+                btn.classList.add('active');
+            } else if(repeatMode === 1) {
+                repeatMode = 2;
+                btn.innerHTML = '<i class="fa-solid fa-repeat"></i><span style="position:absolute;font-size:10px;margin-left:-5px;margin-top:5px;">1</span>';
+                btn.classList.add('active');
+            } else {
+                repeatMode = 0;
+                btn.innerHTML = '<i class="fa-solid fa-repeat"></i>';
+                btn.classList.remove('active');
+            }
+        }
+
+        function updateProgress() {
+            if(audio.duration) {
+                let percent = (audio.currentTime / audio.duration) * 100;
+                progressBar.value = percent;
+                currentTimeEl.innerText = formatTime(audio.currentTime);
+            }
+        }
+
+        function setDuration() {
+            totalTimeEl.innerText = formatTime(audio.duration);
+        }
+
+        function seekAudio(val) {
+            if(audio.duration) {
+                audio.currentTime = (val / 100) * audio.duration;
+            }
+        }
+
+        function formatTime(seconds) {
+            if(isNaN(seconds)) return "0:00";
+            let m = Math.floor(seconds / 60);
+            let s = Math.floor(seconds % 60);
+            return m + ":" + (s < 10 ? "0" : "") + s;
+        }
+    </script>
+
+    {% block extra_js %}{% endblock %}
 </body>
 </html>
