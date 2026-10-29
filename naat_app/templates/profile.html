@@ -37,7 +37,13 @@
     .tp-title { font-size: 16px; font-weight: 700; color: #1e7d5a; margin-bottom: 3px;}
     .tp-artist { font-size: 12px; color: #64748b; margin-bottom: 10px; }
     
-    /* ICON BUTTONS STYLING */
+    /* 3-COLUMN FLEX LAYOUT */
+    .controls-wrapper { display: flex; align-items: center; justify-content: space-between; }
+    .empty-left { width: 90px; }
+    .center-buttons { display: flex; gap: 8px; justify-content: center; }
+    .right-volume { width: 90px; display: flex; justify-content: flex-end; }
+
+    /* ICON BUTTONS */
     .tp-controls button { 
         width: 36px; height: 36px; padding: 0; border-radius: 50%; 
         display: inline-flex; align-items: center; justify-content: center; 
@@ -61,6 +67,24 @@
     .custom-audio-wrapper { display: flex; align-items: center; gap: 8px; }
     .audio-progress { flex-grow: 1; cursor: pointer; accent-color: #1e7d5a; }
     .audio-time { font-size: 11px; font-weight: 600; color: #555; }
+
+    /* VOLUME SLIDER */
+    .volume-container {
+        display: flex; align-items: center; gap: 5px;
+        background: #fff; padding: 4px 10px; border-radius: 20px;
+        border: 1px solid #ccc; height: 36px; width: 90px;
+    }
+    .volume-container input[type=range] {
+        -webkit-appearance: none; width: 100%; background: transparent; cursor: pointer;
+        margin: 0; padding: 0; outline: none;
+    }
+    .volume-container input[type=range]::-webkit-slider-runnable-track {
+        width: 100%; height: 4px; background: #cbd5e1; border-radius: 2px;
+    }
+    .volume-container input[type=range]::-webkit-slider-thumb {
+        -webkit-appearance: none; height: 12px; width: 12px; border-radius: 50%;
+        background: #1e7d5a; margin-top: -4px; 
+    }
 
     /* Search Container */
     .search-container { position: relative; width: 100%; margin-top: 5px; }
@@ -113,11 +137,13 @@
     /* Mobile Fixes */
     @media (max-width: 576px) {
         .naat-title { font-size: 13px; }
-        .naat-duration { display: none; } /* Time mobile pe chupa diya */
+        .naat-duration { display: none; } 
         .profile-header { padding: 15px; }
         .profile-img { width: 80px; height: 80px; }
         .profile-placeholder { width: 80px; height: 80px; font-size: 35px; }
         .artist-name-sm { display: none; }
+        .volume-container, .empty-left, .right-volume { display: none !important; } 
+        .center-buttons { margin: 0 auto; }
     }
 {% endblock %}
 
@@ -167,20 +193,21 @@
                         <span class="audio-time" id="tp-duration">0:00</span>
                     </div>
 
-                    <!-- ICON BUTTONS -->
-                    <div class="tp-controls d-flex justify-content-center gap-2">
-                        <button type="button" class="btn btn-light rounded-circle" onclick="tpPrev()" title="Previous">
-                            <i class="fa-solid fa-backward-step text-success"></i>
-                        </button>
-                        <button type="button" class="btn btn-success rounded-circle" onclick="tpToggle()" id="tp-play-btn" title="Play / Pause">
-                            <i class="fa-solid fa-play"></i>
-                        </button>
-                        <button type="button" class="btn btn-light rounded-circle" onclick="tpNext()" title="Next">
-                            <i class="fa-solid fa-forward-step text-success"></i>
-                        </button>
-                        <button type="button" class="btn btn-light rounded-circle" onclick="tpCycleMode()" id="tp-shuffle-btn" title="Normal">
-                            <i class="fa-solid fa-shuffle text-success"></i>
-                        </button>
+                    <!-- BUTTONS & VOLUME -->
+                    <div class="controls-wrapper mt-2">
+                        <div class="empty-left"></div>
+                        <div class="center-buttons tp-controls">
+                            <button type="button" class="btn btn-light rounded-circle" onclick="tpPrev()" title="Previous"><i class="fa-solid fa-backward-step text-success"></i></button>
+                            <button type="button" class="btn btn-success rounded-circle" onclick="tpToggle()" id="tp-play-btn" title="Play / Pause"><i class="fa-solid fa-play"></i></button>
+                            <button type="button" class="btn btn-light rounded-circle" onclick="tpNext()" title="Next"><i class="fa-solid fa-forward-step text-success"></i></button>
+                            <button type="button" class="btn btn-light rounded-circle" onclick="tpCycleMode()" id="tp-shuffle-btn" title="Normal"><i class="fa-solid fa-shuffle text-success"></i></button>
+                        </div>
+                        <div class="right-volume">
+                            <div class="volume-container">
+                                <i class="fa-solid fa-volume-high text-success" style="font-size: 12px;"></i>
+                                <input type="range" id="tp-volume" min="0" max="1" step="0.1" value="1" oninput="tpChangeVolume(this.value)">
+                            </div>
+                        </div>
                     </div>
                     <audio id="tp-audio" preload="none"></audio>
                 </div>
@@ -213,11 +240,9 @@
                         <p class="naat-title text-truncate mb-0">{{ naat.title }}</p>
                     </div>
 
-                    <!-- Row ka time -->
                     <div class="naat-duration" id="dur-{{ naat.id }}">--:--</div>
                     <audio class="duration-audio" id="hidden-audio-{{ naat.id }}" preload="metadata" src="{% url 'stream_naat' naat.id %}"></audio>
 
-                    <!-- Action Buttons -->
                     <div class="d-flex align-items-center">
                         <a href="{% url 'download_naat' naat.id %}" class="download-icon" onclick="event.stopPropagation();" title="Download">
                             <i class="fa-solid fa-download"></i>
@@ -234,7 +259,6 @@
                 {% endfor %}
             </div>
             
-            <!-- NO RESULTS -->
             <div id="noResults" class="text-center py-5 d-none">
                 <i class="fa-solid fa-music-slash text-muted" style="font-size: 40px;"></i>
                 <h4 class="text-muted mt-3">No naats found with this name.</h4>
@@ -277,12 +301,7 @@
 <script>
     // 1. Data Load
     const tpPlaylist = Array.from(document.querySelectorAll('.naat-list-item')).map(function (el) {
-        return {
-            id: Number(el.dataset.id),
-            title: el.dataset.title,
-            artist: el.dataset.artist,
-            url: el.dataset.url
-        };
+        return { id: Number(el.dataset.id), title: el.dataset.title, artist: el.dataset.artist, url: el.dataset.url };
     });
 
     let tpIndex = -1;
@@ -376,6 +395,15 @@
         }
     }
 
+    // VOLUME CHANGE FUNCTION
+    function tpChangeVolume(val) {
+        tpAudio.volume = val;
+        let icon = document.querySelector('.volume-container i');
+        if (val == 0) icon.className = 'fa-solid fa-volume-xmark text-danger';
+        else if (val < 0.5) icon.className = 'fa-solid fa-volume-low text-success';
+        else icon.className = 'fa-solid fa-volume-high text-success';
+    }
+
     // PLAYBACK MODE CYCLE LOGIC
     function tpCycleMode() {
         playMode = (playMode + 1) % 4;
@@ -411,9 +439,7 @@
             tpIndex = Math.floor(Math.random() * tpPlaylist.length);
         } else {
             tpIndex++;
-            if (tpIndex >= tpPlaylist.length) {
-                tpIndex = 0; 
-            }
+            if (tpIndex >= tpPlaylist.length) tpIndex = 0; 
         }
         tpLoad(tpIndex);
     }
@@ -555,10 +581,7 @@
                         
                         data.naats.forEach((naat, index) => {
                             tpPlaylist.push({
-                                id: naat.id,
-                                title: naat.title,
-                                artist: naat.artist,
-                                url: naat.url
+                                id: naat.id, title: naat.title, artist: naat.artist, url: naat.url
                             });
 
                             let favClass = naat.is_fav ? 'active' : '';

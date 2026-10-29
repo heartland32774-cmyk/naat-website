@@ -12,7 +12,6 @@
     .main-content { padding: 15px; flex: 1; }
     @media (min-width: 768px) { .main-content { padding: 30px; } }
 
-    /* STICKY WRAPPER (Header + Player + Search) */
     .sticky-wrapper {
         position: sticky;
         top: 80px;
@@ -23,14 +22,12 @@
         border-radius: 15px;
     }
 
-    /* Page Title Header */
     .page-header {
         background: #fff; border-radius: 15px; padding: 15px 20px; 
         box-shadow: 0 4px 15px rgba(0,0,0,0.04); margin-bottom: 10px;
         border-left: 5px solid #dc3545;
     }
 
-    /* TOP PLAYER */
     .top-player {
         background: #f1f5f9; border-radius: 12px; padding: 12px 15px; margin-bottom: 10px;
         border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
@@ -38,7 +35,12 @@
     .tp-title { font-size: 16px; font-weight: 700; color: #1e7d5a; margin-bottom: 3px;}
     .tp-artist { font-size: 12px; color: #64748b; margin-bottom: 10px; }
     
-    /* ICON BUTTONS */
+    /* 3-COLUMN FLEX LAYOUT */
+    .controls-wrapper { display: flex; align-items: center; justify-content: space-between; }
+    .empty-left { width: 90px; }
+    .center-buttons { display: flex; gap: 8px; justify-content: center; }
+    .right-volume { width: 90px; display: flex; justify-content: flex-end; }
+
     .tp-controls button { 
         width: 36px; height: 36px; padding: 0; border-radius: 50%; 
         display: inline-flex; align-items: center; justify-content: center; 
@@ -50,7 +52,6 @@
     .tp-controls .btn-success { background: #1e7d5a; border-color: #1e7d5a; color: white; }
     .tp-controls .btn-success:hover { background: #166347; border-color: #166347; }
     
-    /* Repeat One Badge */
     .repeat-badge {
         position: absolute; top: -2px; right: -2px;
         background: #1e7d5a; color: white;
@@ -63,7 +64,23 @@
     .audio-progress { flex-grow: 1; cursor: pointer; accent-color: #1e7d5a; }
     .audio-time { font-size: 11px; font-weight: 600; color: #555; }
 
-    /* SEARCH BAR */
+    .volume-container {
+        display: flex; align-items: center; gap: 5px;
+        background: #fff; padding: 4px 10px; border-radius: 20px;
+        border: 1px solid #ccc; height: 36px; width: 90px;
+    }
+    .volume-container input[type=range] {
+        -webkit-appearance: none; width: 100%; background: transparent; cursor: pointer;
+        margin: 0; padding: 0; outline: none;
+    }
+    .volume-container input[type=range]::-webkit-slider-runnable-track {
+        width: 100%; height: 4px; background: #cbd5e1; border-radius: 2px;
+    }
+    .volume-container input[type=range]::-webkit-slider-thumb {
+        -webkit-appearance: none; height: 12px; width: 12px; border-radius: 50%;
+        background: #1e7d5a; margin-top: -4px; 
+    }
+
     .search-container { position: relative; width: 100%; }
     .search-container input { 
         width: 100%; padding: 8px 15px 8px 35px; 
@@ -79,7 +96,6 @@
         transform: translateY(-50%); color: #94a3b8; font-size: 13px; 
     }
 
-    /* NAAT LIST */
     .naat-list-item { background: #fff; border-radius: 8px; border: 1px solid #eaeaea; transition: 0.2s; margin-bottom: 8px; display: flex; align-items: center; padding: 10px; cursor: pointer; overflow: hidden; }
     .naat-list-item:hover { background: #f8f9fa; border-color: #ddd; }
     .naat-list-item.playing-now { background-color: #e8f5e9 !important; border-color: #1e7d5a !important; }
@@ -100,7 +116,6 @@
 
     .duration-audio { width: 0; height: 0; opacity: 0; position: absolute; pointer-events: none; }
 
-    /* Right Widgets */
     .right-widget { background: #fff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); padding: 20px; margin-bottom: 20px; }
     .right-widget h5 { font-size: 16px; font-weight: 700; color: #1e7d5a; border-bottom: 2px solid #e8f5e9; padding-bottom: 10px; margin-bottom: 15px; }
     .widget-item { display: flex; align-items: flex-start; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px dashed #e2e8f0; }
@@ -111,13 +126,14 @@
     .widget-text a:hover { color: #1e7d5a; }
     .widget-text small { color: #64748b; font-size: 11px; display: block; }
 
-    /* Mobile Fixes */
     @media (max-width: 576px) {
         .naat-title { font-size: 13px; }
         .naat-duration { display: none; } 
         .page-header h2 { font-size: 18px; }
         .page-header p { display: none; } 
         .artist-name-sm { display: none; }
+        .volume-container, .empty-left, .right-volume { display: none !important; } 
+        .center-buttons { margin: 0 auto; }
     }
 {% endblock %}
 
@@ -138,9 +154,7 @@
         <!-- CENTER CONTENT -->
         <div class="col-12 col-md-6 col-lg-7 main-content">
             
-            <!-- STICKY WRAPPER (Header + Player + Search) -->
             <div class="sticky-wrapper">
-                <!-- PAGE HEADER -->
                 <div class="page-header d-flex justify-content-between align-items-center">
                     <div>
                         <h2 class="fw-bold mb-1" style="color: #1e7d5a;"><i class="fa-solid fa-fire text-danger me-2"></i>Top 30 Popular Naats</h2>
@@ -149,7 +163,6 @@
                     <a href="/" class="btn btn-outline-secondary btn-sm rounded-pill"><i class="fa-solid fa-arrow-left me-1"></i> Back</a>
                 </div>
 
-                <!-- TOP PLAYER -->
                 <div class="top-player">
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
@@ -164,32 +177,30 @@
                         <span class="audio-time" id="tp-duration">0:00</span>
                     </div>
 
-                    <!-- ICON BUTTONS -->
-                    <div class="tp-controls d-flex justify-content-center gap-2">
-                        <button type="button" class="btn btn-light rounded-circle" onclick="tpPrev()" title="Previous">
-                            <i class="fa-solid fa-backward-step text-success"></i>
-                        </button>
-                        <button type="button" class="btn btn-success rounded-circle" onclick="tpToggle()" id="tp-play-btn" title="Play / Pause">
-                            <i class="fa-solid fa-play"></i>
-                        </button>
-                        <button type="button" class="btn btn-light rounded-circle" onclick="tpNext()" title="Next">
-                            <i class="fa-solid fa-forward-step text-success"></i>
-                        </button>
-                        <button type="button" class="btn btn-light rounded-circle" onclick="tpCycleMode()" id="tp-shuffle-btn" title="Normal">
-                            <i class="fa-solid fa-shuffle text-success"></i>
-                        </button>
+                    <div class="controls-wrapper mt-2">
+                        <div class="empty-left"></div>
+                        <div class="center-buttons tp-controls">
+                            <button type="button" class="btn btn-light rounded-circle" onclick="tpPrev()" title="Previous"><i class="fa-solid fa-backward-step text-success"></i></button>
+                            <button type="button" class="btn btn-success rounded-circle" onclick="tpToggle()" id="tp-play-btn" title="Play / Pause"><i class="fa-solid fa-play"></i></button>
+                            <button type="button" class="btn btn-light rounded-circle" onclick="tpNext()" title="Next"><i class="fa-solid fa-forward-step text-success"></i></button>
+                            <button type="button" class="btn btn-light rounded-circle" onclick="tpCycleMode()" id="tp-shuffle-btn" title="Normal"><i class="fa-solid fa-shuffle text-success"></i></button>
+                        </div>
+                        <div class="right-volume">
+                            <div class="volume-container">
+                                <i class="fa-solid fa-volume-high text-success" style="font-size: 12px;"></i>
+                                <input type="range" id="tp-volume" min="0" max="1" step="0.1" value="1" oninput="tpChangeVolume(this.value)">
+                            </div>
+                        </div>
                     </div>
                     <audio id="tp-audio" preload="none"></audio>
                 </div>
 
-                <!-- SEARCH BAR -->
                 <div class="search-container">
                     <i class="fa-solid fa-magnifying-glass"></i>
                     <input type="text" id="searchInput" placeholder="Search popular naats..." autocomplete="off">
                 </div>
             </div>
 
-            <!-- NAAT LIST -->
             <div class="naat-list-container" id="naatsContainer">
                 {% for naat in naats %}
                 <div class="naat-list-item"
@@ -210,16 +221,9 @@
                     <audio class="duration-audio" id="hidden-audio-{{ naat.id }}" preload="metadata" src="{% url 'stream_naat' naat.id %}"></audio>
 
                     <div class="d-flex align-items-center">
-                        <a href="{% url 'download_naat' naat.id %}" class="download-icon" onclick="event.stopPropagation();" title="Download">
-                            <i class="fa-solid fa-download"></i>
-                        </a>
-                        <button type="button" class="btn-play-list" onclick="event.stopPropagation(); tpPlay({{ naat.id }});">
-                            <i class="fa-solid fa-play"></i>
-                        </button>
-                        
-                        <button type="button" class="fav-btn {% if naat.id in favorite_ids %}active{% endif %}" id="fav-{{ naat.id }}" onclick="event.stopPropagation(); tpToggleFav({{ naat.id }});" title="Add to Favorites">
-                            <i class="{% if naat.id in favorite_ids %}fa-solid{% else %}fa-regular{% endif %} fa-star"></i>
-                        </button>
+                        <a href="{% url 'download_naat' naat.id %}" class="download-icon" onclick="event.stopPropagation();" title="Download"><i class="fa-solid fa-download"></i></a>
+                        <button type="button" class="btn-play-list" onclick="event.stopPropagation(); tpPlay({{ naat.id }});"><i class="fa-solid fa-play"></i></button>
+                        <button type="button" class="fav-btn {% if naat.id in favorite_ids %}active{% endif %}" id="fav-{{ naat.id }}" onclick="event.stopPropagation(); tpToggleFav({{ naat.id }});" title="Add to Favorites"><i class="{% if naat.id in favorite_ids %}fa-solid{% else %}fa-regular{% endif %} fa-star"></i></button>
                     </div>
                 </div>
                 {% endfor %}
@@ -266,16 +270,11 @@
 {% block extra_js %}
 <script>
     const tpPlaylist = Array.from(document.querySelectorAll('.naat-list-item')).map(function (el) {
-        return {
-            id: Number(el.dataset.id),
-            title: el.dataset.title,
-            artist: el.dataset.artist,
-            url: el.dataset.url
-        };
+        return { id: Number(el.dataset.id), title: el.dataset.title, artist: el.dataset.artist, url: el.dataset.url };
     });
 
     let tpIndex = -1;
-    let playMode = 0; // 0 = Normal, 1 = Repeat All, 2 = Repeat One, 3 = Shuffle
+    let playMode = 0; 
 
     const tpAudio = document.getElementById('tp-audio');
     const tpPlayBtn = document.getElementById('tp-play-btn');
@@ -310,7 +309,6 @@
         if (idx < 0 || idx >= tpPlaylist.length) return;
         tpIndex = idx;
         const song = tpPlaylist[idx];
-
         tpAudio.src = song.url;
         tpTitleEl.innerText = song.title;
         tpArtistEl.innerText = song.artist;
@@ -344,15 +342,11 @@
         tpLoad(idx);
     }
 
-    // UPDATED TOGGLE (Play First Naat if empty)
     function tpToggle() {
         if (tpIndex < 0) {
-            if (tpPlaylist.length > 0) {
-                tpLoad(0); // Pehli naat play karo
-            }
+            if (tpPlaylist.length > 0) tpLoad(0); 
             return;
         }
-
         const id = tpPlaylist[tpIndex].id;
         if (tpAudio.paused) {
             tpAudio.play();
@@ -365,28 +359,31 @@
         }
     }
 
-    // PLAYBACK MODE CYCLE LOGIC
+    function tpChangeVolume(val) {
+        tpAudio.volume = val;
+        let icon = document.querySelector('.volume-container i');
+        if (val == 0) icon.className = 'fa-solid fa-volume-xmark text-danger';
+        else if (val < 0.5) icon.className = 'fa-solid fa-volume-low text-success';
+        else icon.className = 'fa-solid fa-volume-high text-success';
+    }
+
     function tpCycleMode() {
         playMode = (playMode + 1) % 4;
-        
         tpShuffleBtn.classList.remove('mode-active');
         tpShuffleBtn.innerHTML = ''; 
 
         if (playMode === 0) {
             tpShuffleBtn.innerHTML = '<i class="fa-solid fa-shuffle text-success"></i>';
             tpShuffleBtn.title = "Normal";
-        } 
-        else if (playMode === 1) {
+        } else if (playMode === 1) {
             tpShuffleBtn.innerHTML = '<i class="fa-solid fa-repeat text-success"></i>';
             tpShuffleBtn.classList.add('mode-active');
             tpShuffleBtn.title = "Repeat All";
-        } 
-        else if (playMode === 2) {
+        } else if (playMode === 2) {
             tpShuffleBtn.innerHTML = '<i class="fa-solid fa-repeat text-success"></i><span class="repeat-badge">1</span>';
             tpShuffleBtn.classList.add('mode-active');
             tpShuffleBtn.title = "Repeat One";
-        } 
-        else if (playMode === 3) {
+        } else if (playMode === 3) {
             tpShuffleBtn.innerHTML = '<i class="fa-solid fa-shuffle text-success"></i>';
             tpShuffleBtn.classList.add('mode-active');
             tpShuffleBtn.title = "Shuffle On";
@@ -395,31 +392,24 @@
 
     function tpNext() {
         if (tpPlaylist.length === 0) return;
-        
-        if (playMode === 3) {
-            tpIndex = Math.floor(Math.random() * tpPlaylist.length);
-        } else {
+        if (playMode === 3) tpIndex = Math.floor(Math.random() * tpPlaylist.length);
+        else {
             tpIndex++;
-            if (tpIndex >= tpPlaylist.length) {
-                tpIndex = 0; 
-            }
+            if (tpIndex >= tpPlaylist.length) tpIndex = 0; 
         }
         tpLoad(tpIndex);
     }
 
     function tpPrev() {
         if (tpPlaylist.length === 0) return;
-        
-        if (playMode === 3) {
-            tpIndex = Math.floor(Math.random() * tpPlaylist.length);
-        } else {
+        if (playMode === 3) tpIndex = Math.floor(Math.random() * tpPlaylist.length);
+        else {
             tpIndex--;
             if (tpIndex < 0) tpIndex = tpPlaylist.length - 1;
         }
         tpLoad(tpIndex);
     }
 
-    // AUTO NEXT
     tpAudio.addEventListener('ended', function() {
         if (playMode === 2) {
             tpAudio.currentTime = 0;
@@ -429,12 +419,8 @@
                 tpAudio.pause();
                 tpPlayBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
                 tpUpdateUI(null, false);
-            } else {
-                tpNext();
-            }
-        } else {
-            tpNext();
-        }
+            } else tpNext();
+        } else tpNext();
     });
 
     tpAudio.addEventListener('timeupdate', function () {
@@ -459,22 +445,16 @@
     function tpToggleFav(id) {
         fetch("/api/toggle-favorite/" + id + "/", {
             method: "POST",
-            headers: {
-                "X-CSRFToken": "{{ csrf_token }}",
-                "Content-Type": "application/json"
-            },
+            headers: { "X-CSRFToken": "{{ csrf_token }}", "Content-Type": "application/json" },
             credentials: "same-origin"
-        })
-        .then(function (res) {
+        }).then(function (res) {
             if (res.status === 403 || res.status === 401) {
                 window.location.href = "{% url 'login' %}";
                 return null;
             }
             return res.json();
-        })
-        .then(function (data) {
+        }).then(function (data) {
             if (!data) return;
-            
             const btn = document.getElementById('fav-' + id);
             if(btn) {
                 const icon = btn.querySelector('i');
@@ -486,10 +466,7 @@
                     icon.className = 'fa-regular fa-star';
                 }
             }
-        })
-        .catch(function (e) {
-            console.log('Favorite error:', e);
-        });
+        }).catch(function (e) { console.log('Favorite error:', e); });
     }
 
     function tpUpdateUI(playingId, isPlaying) {
@@ -508,46 +485,26 @@
         }
     }
 
-    // Live Search
     document.addEventListener("DOMContentLoaded", function() {
         const searchInput = document.getElementById('searchInput');
-        const container = document.getElementById('naatsContainer');
         const noResults = document.getElementById('noResults');
-        
         let debounceTimer;
-
         searchInput.addEventListener('input', function() {
             clearTimeout(debounceTimer);
             const query = this.value.trim();
-            
-            if (query.length === 0) {
-                window.location.href = window.location.pathname;
-                return;
-            }
-            
+            if (query.length === 0) { window.location.href = window.location.pathname; return; }
             debounceTimer = setTimeout(function() {
                 const items = document.querySelectorAll('.naat-list-item');
                 let visibleCount = 0;
-                
                 items.forEach(item => {
                     const title = item.dataset.title.toLowerCase();
                     const artist = item.dataset.artist.toLowerCase();
-                    const searchLower = query.toLowerCase();
-                    
-                    if (title.includes(searchLower) || artist.includes(searchLower)) {
-                        item.style.display = 'flex';
-                        visibleCount++;
-                    } else {
-                        item.style.display = 'none';
-                    }
+                    if (title.includes(query.toLowerCase()) || artist.includes(query.toLowerCase())) {
+                        item.style.display = 'flex'; visibleCount++;
+                    } else { item.style.display = 'none'; }
                 });
-                
-                if (visibleCount === 0) {
-                    noResults.classList.remove('d-none');
-                } else {
-                    noResults.classList.add('d-none');
-                }
-                
+                if (visibleCount === 0) noResults.classList.remove('d-none');
+                else noResults.classList.add('d-none');
             }, 300);
         });
     });

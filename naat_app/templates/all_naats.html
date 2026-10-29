@@ -38,6 +38,16 @@
     .tp-title { font-size: 16px; font-weight: 700; color: #1e7d5a; margin-bottom: 3px;}
     .tp-artist { font-size: 12px; color: #64748b; margin-bottom: 10px; }
     
+    /* 3-COLUMN FLEX LAYOUT (Left Empty, Center Buttons, Right Volume) */
+    .controls-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .empty-left { width: 90px; } /* Left side balance */
+    .center-buttons { display: flex; gap: 8px; justify-content: center; }
+    .right-volume { width: 90px; display: flex; justify-content: flex-end; }
+
     /* ICON BUTTONS */
     .tp-controls button { 
         width: 36px; height: 36px; padding: 0; border-radius: 50%; 
@@ -46,10 +56,7 @@
     }
     .tp-controls .btn-light { background: #fff; border: 1px solid #ccc; color: #333; }
     .tp-controls .btn-light:hover { background: #e2e8f0; }
-    
-    /* Active Mode Highlight (Green Background) */
     .tp-controls .btn-light.mode-active { background: #d1e7dd; border-color: #1e7d5a; color: #1e7d5a; }
-    
     .tp-controls .btn-success { background: #1e7d5a; border-color: #1e7d5a; color: white; }
     .tp-controls .btn-success:hover { background: #166347; border-color: #166347; }
     
@@ -65,6 +72,24 @@
     .custom-audio-wrapper { display: flex; align-items: center; gap: 8px; }
     .audio-progress { flex-grow: 1; cursor: pointer; accent-color: #1e7d5a; }
     .audio-time { font-size: 11px; font-weight: 600; color: #555; }
+
+    /* VOLUME SLIDER (Custom Styling - No Jumping) */
+    .volume-container {
+        display: flex; align-items: center; gap: 5px;
+        background: #fff; padding: 4px 10px; border-radius: 20px;
+        border: 1px solid #ccc; height: 36px; width: 90px; /* Fixed Width */
+    }
+    .volume-container input[type=range] {
+        -webkit-appearance: none; width: 100%; background: transparent; cursor: pointer;
+        margin: 0; padding: 0; outline: none;
+    }
+    .volume-container input[type=range]::-webkit-slider-runnable-track {
+        width: 100%; height: 4px; background: #cbd5e1; border-radius: 2px;
+    }
+    .volume-container input[type=range]::-webkit-slider-thumb {
+        -webkit-appearance: none; height: 12px; width: 12px; border-radius: 50%;
+        background: #1e7d5a; margin-top: -4px; 
+    }
 
     /* SEARCH BAR */
     .search-container { position: relative; width: 100%; }
@@ -121,6 +146,8 @@
         .page-header h2 { font-size: 18px; }
         .page-header p { display: none; } 
         .artist-name-sm { display: none; }
+        .volume-container, .empty-left, .right-volume { display: none !important; } 
+        .center-buttons { margin: 0 auto; } /* Mobile pe buttons center ho jayen */
     }
 {% endblock %}
 
@@ -164,21 +191,38 @@
                         <span class="audio-time" id="tp-duration">0:00</span>
                     </div>
 
-                    <!-- ICON BUTTONS -->
-                    <div class="tp-controls d-flex justify-content-center gap-2">
-                        <button type="button" class="btn btn-light rounded-circle" onclick="tpPrev()" title="Previous">
-                            <i class="fa-solid fa-backward-step text-success"></i>
-                        </button>
-                        <button type="button" class="btn btn-success rounded-circle" onclick="tpToggle()" id="tp-play-btn" title="Play / Pause">
-                            <i class="fa-solid fa-play"></i>
-                        </button>
-                        <button type="button" class="btn btn-light rounded-circle" onclick="tpNext()" title="Next">
-                            <i class="fa-solid fa-forward-step text-success"></i>
-                        </button>
-                        <button type="button" class="btn btn-light rounded-circle" onclick="tpCycleMode()" id="tp-shuffle-btn" title="Normal">
-                            <i class="fa-solid fa-shuffle text-success"></i>
-                        </button>
+                    <!-- 3-COLUMN FLEX LAYOUT -->
+                    <div class="controls-wrapper mt-2">
+                        
+                        <!-- Left (Empty for Balance) -->
+                        <div class="empty-left"></div>
+
+                        <!-- Center (Playback Buttons) -->
+                        <div class="center-buttons tp-controls">
+                            <button type="button" class="btn btn-light rounded-circle" onclick="tpPrev()" title="Previous">
+                                <i class="fa-solid fa-backward-step text-success"></i>
+                            </button>
+                            <button type="button" class="btn btn-success rounded-circle" onclick="tpToggle()" id="tp-play-btn" title="Play / Pause">
+                                <i class="fa-solid fa-play"></i>
+                            </button>
+                            <button type="button" class="btn btn-light rounded-circle" onclick="tpNext()" title="Next">
+                                <i class="fa-solid fa-forward-step text-success"></i>
+                            </button>
+                            <button type="button" class="btn btn-light rounded-circle" onclick="tpCycleMode()" id="tp-shuffle-btn" title="Normal">
+                                <i class="fa-solid fa-shuffle text-success"></i>
+                            </button>
+                        </div>
+
+                        <!-- Right (Volume Slider) -->
+                        <div class="right-volume">
+                            <div class="volume-container">
+                                <i class="fa-solid fa-volume-high text-success" style="font-size: 12px;"></i>
+                                <input type="range" id="tp-volume" min="0" max="1" step="0.1" value="1" oninput="tpChangeVolume(this.value)">
+                            </div>
+                        </div>
+
                     </div>
+
                     <audio id="tp-audio" preload="none"></audio>
                 </div>
 
@@ -343,9 +387,8 @@
         tpLoad(idx);
     }
 
-    // UPDATED TOGGLE FUNCTION
+    // UPDATED TOGGLE (Play First Naat if empty)
     function tpToggle() {
-        // AGAR KOI NAAT NAHI CHAL RAHI (PLAYER KHALI HAI)
         if (tpIndex < 0) {
             if (tpPlaylist.length > 0) {
                 tpLoad(0); // Pehli naat play karo
@@ -353,17 +396,28 @@
             return;
         }
 
-        // Agar naat pehle se ruki hui hai (Pause) to chalao
         const id = tpPlaylist[tpIndex].id;
         if (tpAudio.paused) {
             tpAudio.play();
             tpPlayBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
             tpUpdateUI(id, true);
         } else {
-            // Agar chal rahi hai to rok do
             tpAudio.pause();
             tpPlayBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
             tpUpdateUI(id, false);
+        }
+    }
+
+    // VOLUME CHANGE FUNCTION
+    function tpChangeVolume(val) {
+        tpAudio.volume = val;
+        let icon = document.querySelector('.volume-container i');
+        if (val == 0) {
+            icon.className = 'fa-solid fa-volume-xmark text-danger';
+        } else if (val < 0.5) {
+            icon.className = 'fa-solid fa-volume-low text-success';
+        } else {
+            icon.className = 'fa-solid fa-volume-high text-success';
         }
     }
 
@@ -371,29 +425,24 @@
     function tpCycleMode() {
         playMode = (playMode + 1) % 4;
         
-        // Reset classes
         tpShuffleBtn.classList.remove('mode-active');
-        tpShuffleBtn.innerHTML = ''; // Clear content
+        tpShuffleBtn.innerHTML = ''; 
 
         if (playMode === 0) {
-            // Normal
             tpShuffleBtn.innerHTML = '<i class="fa-solid fa-shuffle text-success"></i>';
             tpShuffleBtn.title = "Normal";
         } 
         else if (playMode === 1) {
-            // Repeat All
             tpShuffleBtn.innerHTML = '<i class="fa-solid fa-repeat text-success"></i>';
             tpShuffleBtn.classList.add('mode-active');
             tpShuffleBtn.title = "Repeat All";
         } 
         else if (playMode === 2) {
-            // Repeat One (With Badge)
             tpShuffleBtn.innerHTML = '<i class="fa-solid fa-repeat text-success"></i><span class="repeat-badge">1</span>';
             tpShuffleBtn.classList.add('mode-active');
             tpShuffleBtn.title = "Repeat One";
         } 
         else if (playMode === 3) {
-            // Shuffle
             tpShuffleBtn.innerHTML = '<i class="fa-solid fa-shuffle text-success"></i>';
             tpShuffleBtn.classList.add('mode-active');
             tpShuffleBtn.title = "Shuffle On";
@@ -426,14 +475,12 @@
         tpLoad(tpIndex);
     }
 
-    // AUTO NEXT (Based on Mode)
+    // AUTO NEXT
     tpAudio.addEventListener('ended', function() {
         if (playMode === 2) {
-            // Repeat One
             tpAudio.currentTime = 0;
             tpAudio.play();
         } else if (playMode === 0) {
-            // Normal (Stop at end of list)
             if (tpIndex === tpPlaylist.length - 1) {
                 tpAudio.pause();
                 tpPlayBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
@@ -442,7 +489,6 @@
                 tpNext();
             }
         } else {
-            // Repeat All ya Shuffle
             tpNext();
         }
     });
