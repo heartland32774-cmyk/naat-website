@@ -38,9 +38,27 @@
     .tp-title { font-size: 16px; font-weight: 700; color: #1e7d5a; margin-bottom: 3px;}
     .tp-artist { font-size: 12px; color: #64748b; margin-bottom: 10px; }
     
-    .tp-controls button { background: none; border: 1px solid #ccc; color: #333; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600; transition: 0.2s; margin-right: 3px;}
-    .tp-controls button:hover { background: #e2e8f0; }
+    /* ICON BUTTONS */
+    .tp-controls button { 
+        width: 36px; height: 36px; padding: 0; border-radius: 50%; 
+        display: inline-flex; align-items: center; justify-content: center; 
+        font-size: 14px; transition: 0.2s; position: relative;
+    }
+    .tp-controls .btn-light { background: #fff; border: 1px solid #ccc; color: #333; }
+    .tp-controls .btn-light:hover { background: #e2e8f0; }
+    .tp-controls .btn-light.mode-active { background: #d1e7dd; border-color: #1e7d5a; color: #1e7d5a; }
+    .tp-controls .btn-success { background: #1e7d5a; border-color: #1e7d5a; color: white; }
+    .tp-controls .btn-success:hover { background: #166347; border-color: #166347; }
     
+    /* Repeat One Badge */
+    .repeat-badge {
+        position: absolute; top: -2px; right: -2px;
+        background: #1e7d5a; color: white;
+        font-size: 8px; font-weight: bold;
+        width: 12px; height: 12px;
+        border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    }
+
     .custom-audio-wrapper { display: flex; align-items: center; gap: 8px; }
     .audio-progress { flex-grow: 1; cursor: pointer; accent-color: #1e7d5a; }
     .audio-time { font-size: 11px; font-weight: 600; color: #555; }
@@ -81,17 +99,7 @@
 
     .duration-audio { width: 0; height: 0; opacity: 0; position: absolute; pointer-events: none; }
 
-    /* Mobile Fixes */
-    @media (max-width: 576px) {
-        .naat-title { font-size: 13px; }
-        .naat-duration { display: none; } 
-        .tp-controls { flex-wrap: wrap; gap: 5px; }
-        .tp-controls button { padding: 3px 8px; font-size: 11px; }
-        .page-header h2 { font-size: 18px; }
-        .page-header p { display: none; } 
-        .artist-name-sm { display: none; }
-    }
-
+    /* Right Widgets */
     .right-widget { background: #fff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); padding: 20px; margin-bottom: 20px; }
     .right-widget h5 { font-size: 16px; font-weight: 700; color: #1e7d5a; border-bottom: 2px solid #e8f5e9; padding-bottom: 10px; margin-bottom: 15px; }
     .widget-item { display: flex; align-items: flex-start; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px dashed #e2e8f0; }
@@ -101,6 +109,15 @@
     .widget-text a { color: #333; font-weight: 600; font-size: 14px; text-decoration: none; display: block; line-height: 1.3; margin-bottom: 3px; }
     .widget-text a:hover { color: #1e7d5a; }
     .widget-text small { color: #64748b; font-size: 11px; display: block; }
+
+    /* Mobile Fixes */
+    @media (max-width: 576px) {
+        .naat-title { font-size: 13px; }
+        .naat-duration { display: none; } 
+        .page-header h2 { font-size: 18px; }
+        .page-header p { display: none; } 
+        .artist-name-sm { display: none; }
+    }
 {% endblock %}
 
 {% block content %}
@@ -120,7 +137,9 @@
         <!-- CENTER CONTENT -->
         <div class="col-12 col-md-6 col-lg-7 main-content">
             
+            <!-- STICKY WRAPPER (Header + Player + Search) -->
             <div class="sticky-wrapper">
+                <!-- PAGE HEADER -->
                 <div class="page-header d-flex justify-content-between align-items-center">
                     <div>
                         <h2 class="fw-bold mb-1" style="color: #1e7d5a;"><i class="fa-solid fa-star text-warning me-2"></i>My Favorite Naats</h2>
@@ -129,6 +148,7 @@
                     <a href="/" class="btn btn-outline-secondary btn-sm rounded-pill"><i class="fa-solid fa-arrow-left me-1"></i> Back</a>
                 </div>
 
+                <!-- TOP PLAYER -->
                 <div class="top-player">
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
@@ -137,27 +157,38 @@
                         </div>
                     </div>
                     
-                    <div class="custom-audio-wrapper mb-2">
+                    <div class="custom-audio-wrapper mb-3">
                         <span class="audio-time" id="tp-current">0:00</span>
                         <input type="range" id="tp-progress" class="audio-progress" value="0" min="0" max="100" step="0.1">
                         <span class="audio-time" id="tp-duration">0:00</span>
                     </div>
 
-                    <div class="tp-controls d-flex">
-                        <button type="button" onclick="tpPrev()">Prev</button>
-                        <button type="button" onclick="tpToggle()" id="tp-play-btn">Play / Pause</button>
-                        <button type="button" onclick="tpNext()">Next</button>
-                        <button type="button" onclick="tpShuffle()" id="tp-shuffle-btn">Shuffle</button>
+                    <!-- ICON BUTTONS -->
+                    <div class="tp-controls d-flex justify-content-center gap-2">
+                        <button type="button" class="btn btn-light rounded-circle" onclick="tpPrev()" title="Previous">
+                            <i class="fa-solid fa-backward-step text-success"></i>
+                        </button>
+                        <button type="button" class="btn btn-success rounded-circle" onclick="tpToggle()" id="tp-play-btn" title="Play / Pause">
+                            <i class="fa-solid fa-play"></i>
+                        </button>
+                        <button type="button" class="btn btn-light rounded-circle" onclick="tpNext()" title="Next">
+                            <i class="fa-solid fa-forward-step text-success"></i>
+                        </button>
+                        <button type="button" class="btn btn-light rounded-circle" onclick="tpCycleMode()" id="tp-shuffle-btn" title="Normal">
+                            <i class="fa-solid fa-shuffle text-success"></i>
+                        </button>
                     </div>
                     <audio id="tp-audio" preload="none"></audio>
                 </div>
 
+                <!-- SEARCH BAR -->
                 <div class="search-container">
                     <i class="fa-solid fa-magnifying-glass"></i>
                     <input type="text" id="searchInput" placeholder="Search favorite naats..." autocomplete="off">
                 </div>
             </div>
 
+            <!-- NAAT LIST -->
             <div class="naat-list-container" id="naatsContainer">
                 {% for naat in naats %}
                 <div class="naat-list-item"
@@ -247,7 +278,7 @@
     });
 
     let tpIndex = -1;
-    let tpShuffleOn = false;
+    let playMode = 0; // 0 = Normal, 1 = Repeat All, 2 = Repeat One, 3 = Shuffle
 
     const tpAudio = document.getElementById('tp-audio');
     const tpPlayBtn = document.getElementById('tp-play-btn');
@@ -256,6 +287,7 @@
     const tpProgress = document.getElementById('tp-progress');
     const tpCurrentEl = document.getElementById('tp-current');
     const tpDurationEl = document.getElementById('tp-duration');
+    const tpShuffleBtn = document.getElementById('tp-shuffle-btn');
 
     function tpFormat(sec) {
         if (!sec || !isFinite(sec)) return "0:00";
@@ -289,11 +321,11 @@
         tpCurrentEl.innerText = "0:00";
 
         tpUpdateUI(song.id, true);
-        tpPlayBtn.innerText = 'Pause';
+        tpPlayBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
 
         tpAudio.play().catch(function (e) {
             console.log('Playback error:', e);
-            tpPlayBtn.innerText = 'Play';
+            tpPlayBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
             tpUpdateUI(song.id, false);
         });
 
@@ -315,40 +347,98 @@
         tpLoad(idx);
     }
 
+    // UPDATED TOGGLE (Play First Naat if empty)
     function tpToggle() {
-        if (tpIndex < 0) return;
+        if (tpIndex < 0) {
+            if (tpPlaylist.length > 0) {
+                tpLoad(0); // Pehli naat play karo
+            }
+            return;
+        }
+
         const id = tpPlaylist[tpIndex].id;
         if (tpAudio.paused) {
             tpAudio.play();
-            tpPlayBtn.innerText = 'Pause';
+            tpPlayBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
             tpUpdateUI(id, true);
         } else {
             tpAudio.pause();
-            tpPlayBtn.innerText = 'Play';
+            tpPlayBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
             tpUpdateUI(id, false);
+        }
+    }
+
+    // PLAYBACK MODE CYCLE LOGIC
+    function tpCycleMode() {
+        playMode = (playMode + 1) % 4;
+        
+        tpShuffleBtn.classList.remove('mode-active');
+        tpShuffleBtn.innerHTML = ''; 
+
+        if (playMode === 0) {
+            tpShuffleBtn.innerHTML = '<i class="fa-solid fa-shuffle text-success"></i>';
+            tpShuffleBtn.title = "Normal";
+        } 
+        else if (playMode === 1) {
+            tpShuffleBtn.innerHTML = '<i class="fa-solid fa-repeat text-success"></i>';
+            tpShuffleBtn.classList.add('mode-active');
+            tpShuffleBtn.title = "Repeat All";
+        } 
+        else if (playMode === 2) {
+            tpShuffleBtn.innerHTML = '<i class="fa-solid fa-repeat text-success"></i><span class="repeat-badge">1</span>';
+            tpShuffleBtn.classList.add('mode-active');
+            tpShuffleBtn.title = "Repeat One";
+        } 
+        else if (playMode === 3) {
+            tpShuffleBtn.innerHTML = '<i class="fa-solid fa-shuffle text-success"></i>';
+            tpShuffleBtn.classList.add('mode-active');
+            tpShuffleBtn.title = "Shuffle On";
         }
     }
 
     function tpNext() {
         if (tpPlaylist.length === 0) return;
-        const next = tpShuffleOn
-            ? Math.floor(Math.random() * tpPlaylist.length)
-            : (tpIndex + 1) % tpPlaylist.length;
-        tpLoad(next);
+        
+        if (playMode === 3) {
+            tpIndex = Math.floor(Math.random() * tpPlaylist.length);
+        } else {
+            tpIndex++;
+            if (tpIndex >= tpPlaylist.length) {
+                tpIndex = 0; 
+            }
+        }
+        tpLoad(tpIndex);
     }
 
     function tpPrev() {
         if (tpPlaylist.length === 0) return;
-        const prev = tpShuffleOn
-            ? Math.floor(Math.random() * tpPlaylist.length)
-            : (tpIndex - 1 + tpPlaylist.length) % tpPlaylist.length;
-        tpLoad(prev);
+        
+        if (playMode === 3) {
+            tpIndex = Math.floor(Math.random() * tpPlaylist.length);
+        } else {
+            tpIndex--;
+            if (tpIndex < 0) tpIndex = tpPlaylist.length - 1;
+        }
+        tpLoad(tpIndex);
     }
 
-    function tpShuffle() {
-        tpShuffleOn = !tpShuffleOn;
-        document.getElementById('tp-shuffle-btn').style.background = tpShuffleOn ? '#cbd5e1' : 'transparent';
-    }
+    // AUTO NEXT
+    tpAudio.addEventListener('ended', function() {
+        if (playMode === 2) {
+            tpAudio.currentTime = 0;
+            tpAudio.play();
+        } else if (playMode === 0) {
+            if (tpIndex === tpPlaylist.length - 1) {
+                tpAudio.pause();
+                tpPlayBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
+                tpUpdateUI(null, false);
+            } else {
+                tpNext();
+            }
+        } else {
+            tpNext();
+        }
+    });
 
     tpAudio.addEventListener('timeupdate', function () {
         if (tpAudio.duration) {
@@ -364,8 +454,6 @@
             if (d && isFinite(tpAudio.duration)) d.innerText = tpFormat(tpAudio.duration);
         }
     });
-
-    tpAudio.addEventListener('ended', tpNext);
 
     tpProgress.addEventListener('input', function () {
         if (tpAudio.duration) tpAudio.currentTime = (this.value / 100) * tpAudio.duration;
@@ -421,6 +509,7 @@
         }
     }
 
+    // Live Search
     document.addEventListener("DOMContentLoaded", function() {
         const searchInput = document.getElementById('searchInput');
         const container = document.getElementById('naatsContainer');

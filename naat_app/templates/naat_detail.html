@@ -2,13 +2,28 @@
 {% block title %}{{ naat.title }} | Noor-e-Naat{% endblock %}
 
 {% block extra_css %}
-    .main-card { background: #fff; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); padding: 20px; margin-top: 20px; text-align: center; }
+    /* STICKY WRAPPER (Main Card + Player) */
+    .sticky-wrapper {
+        position: sticky;
+        top: 80px; /* Navbar ke neeche fix hoga */
+        z-index: 100;
+        background-color: #f8f9fa;
+        padding-bottom: 10px;
+        margin-bottom: 15px;
+        border-radius: 15px;
+    }
+
+    /* MAIN DETAILS CARD */
+    .main-card { 
+        background: #fff; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); 
+        padding: 20px; text-align: center; margin-bottom: 10px;
+    }
     .naat-title { font-size: 24px; font-weight: 800; color: #1e7d5a; margin-bottom: 10px; }
-    .artist-badge { display: inline-flex; align-items: center; background: #f1f5f9; border: 1px solid #e2e8f0; padding: 6px 15px; border-radius: 50px; font-size: 13px; font-weight: 600; color: #475569; text-decoration: none; margin-bottom: 20px; }
+    .artist-badge { display: inline-flex; align-items: center; background: #f1f5f9; border: 1px solid #e2e8f0; padding: 6px 15px; border-radius: 50px; font-size: 13px; font-weight: 600; color: #475569; text-decoration: none; margin-bottom: 15px; }
     .artist-badge:hover { background: #e2e8f0; color: #1e7d5a; }
     
     /* STATS & ACTION BOXES */
-    .stats-row { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
+    .stats-row { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
     .stat-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 15px; padding: 15px 10px; width: 45%; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: 0.2s; }
     .stat-box i { color: #94a3b8; font-size: 18px; margin-bottom: 5px; }
     .stat-box .label { font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
@@ -27,28 +42,46 @@
 
     /* Desktop view ke liye */
     @media (min-width: 768px) {
-        .main-card { padding: 40px; }
+        .main-card { padding: 30px; }
         .naat-title { font-size: 32px; }
         .stat-box, .action-btn { width: 130px; }
     }
-    
-    .related-section { margin-top: 30px; }
-    .related-title { font-weight: 700; color: #333; margin-bottom: 15px; border-left: 4px solid #1e7d5a; padding-left: 10px; font-size: 18px; }
 
-    /* TOP STICKY PLAYER */
+    /* TOP PLAYER */
     .top-player {
-        background: #f1f5f9; border-radius: 12px; padding: 12px 15px; margin-bottom: 15px;
+        background: #f1f5f9; border-radius: 12px; padding: 12px 15px;
         border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
     }
     .tp-title { font-size: 16px; font-weight: 700; color: #1e7d5a; margin-bottom: 3px;}
     .tp-artist { font-size: 12px; color: #64748b; margin-bottom: 10px; }
     
-    .tp-controls button { background: none; border: 1px solid #ccc; color: #333; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600; transition: 0.2s; margin-right: 3px;}
-    .tp-controls button:hover { background: #e2e8f0; }
+    /* ICON BUTTONS */
+    .tp-controls button { 
+        width: 36px; height: 36px; padding: 0; border-radius: 50%; 
+        display: inline-flex; align-items: center; justify-content: center; 
+        font-size: 14px; transition: 0.2s; position: relative;
+    }
+    .tp-controls .btn-light { background: #fff; border: 1px solid #ccc; color: #333; }
+    .tp-controls .btn-light:hover { background: #e2e8f0; }
+    .tp-controls .btn-light.mode-active { background: #d1e7dd; border-color: #1e7d5a; color: #1e7d5a; }
+    .tp-controls .btn-success { background: #1e7d5a; border-color: #1e7d5a; color: white; }
+    .tp-controls .btn-success:hover { background: #166347; border-color: #166347; }
     
+    /* Repeat One Badge */
+    .repeat-badge {
+        position: absolute; top: -2px; right: -2px;
+        background: #1e7d5a; color: white;
+        font-size: 8px; font-weight: bold;
+        width: 12px; height: 12px;
+        border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    }
+
     .custom-audio-wrapper { display: flex; align-items: center; gap: 8px; }
     .audio-progress { flex-grow: 1; cursor: pointer; accent-color: #1e7d5a; }
     .audio-time { font-size: 11px; font-weight: 600; color: #555; }
+
+    .related-section { margin-top: 20px; }
+    .related-title { font-weight: 700; color: #333; margin-bottom: 15px; border-left: 4px solid #1e7d5a; padding-left: 10px; font-size: 18px; }
 
     /* RELATED NAAT LIST */
     .naat-list-item { background: #fff; border-radius: 8px; border: 1px solid #eaeaea; transition: 0.2s; margin-bottom: 8px; display: flex; align-items: center; padding: 10px; cursor: pointer; overflow: hidden; }
@@ -74,8 +107,6 @@
     @media (max-width: 576px) {
         .naat-title-small { font-size: 13px; }
         .naat-duration { display: none; } 
-        .tp-controls { flex-wrap: wrap; gap: 5px; }
-        .tp-controls button { padding: 3px 8px; font-size: 11px; }
         .artist-name-sm { display: none; }
     }
 {% endblock %}
@@ -83,75 +114,88 @@
 {% block content %}
 <div class="container mt-3">
     
-    <!-- TOP PLAYER -->
-    <div class="top-player">
-        <div class="d-flex justify-content-between align-items-start">
-            <div>
-                <div class="tp-title" id="tp-title">No Naat Playing</div>
-                <div class="tp-artist" id="tp-artist">Select a naat from list below</div>
-            </div>
-        </div>
+    <!-- STICKY WRAPPER (Main Card + Player) -->
+    <div class="sticky-wrapper">
         
-        <div class="custom-audio-wrapper mb-2">
-            <span class="audio-time" id="tp-current">0:00</span>
-            <input type="range" id="tp-progress" class="audio-progress" value="0" min="0" max="100" step="0.1">
-            <span class="audio-time" id="tp-duration">0:00</span>
-        </div>
+        <!-- 1. MAIN DETAILS CARD (Pehle) -->
+        <div class="main-card">
+            <h1 class="naat-title" id="main-naat-title">{{ naat.title }}</h1>
+            <a href="/?khawan={{ naat.naat_khawan.id }}" class="artist-badge" id="main-artist-badge"><i class="fa-solid fa-user me-2"></i> <span id="main-artist-name">{{ naat.naat_khawan.name }}</span></a>
 
-        <div class="tp-controls d-flex">
-            <button type="button" onclick="tpPrev()">Prev</button>
-            <button type="button" onclick="tpToggle()" id="tp-play-btn">Play / Pause</button>
-            <button type="button" onclick="tpNext()">Next</button>
-            <button type="button" onclick="tpShuffle()" id="tp-shuffle-btn">Shuffle</button>
-        </div>
-        <audio id="tp-audio" preload="none"></audio>
-    </div>
+            <!-- STATS & ACTION ROW -->
+            <div class="stats-row">
+                <div class="stat-box">
+                    <i class="fa-solid fa-headphones"></i>
+                    <div class="label">Views</div>
+                    <div class="value" id="main-views-count">{{ naat.views|default:"0" }}</div> 
+                </div>
+                
+                <div class="stat-box">
+                    <i class="fa-solid fa-calendar-days"></i>
+                    <div class="label">Added</div>
+                    <div class="value" id="main-date-added">{{ naat.uploaded_at|date:"M d, Y" }}</div>
+                </div>
+                
+                <div class="stat-box">
+                    <i class="fa-solid fa-file-audio"></i>
+                    <div class="label">Format</div>
+                    <div class="value">MP3</div>
+                </div>
 
-    <!-- MAIN DETAILS -->
-    <div class="main-card">
-        <h1 class="naat-title" id="main-naat-title">{{ naat.title }}</h1>
-        <a href="/?khawan={{ naat.naat_khawan.id }}" class="artist-badge" id="main-artist-badge"><i class="fa-solid fa-user me-2"></i> <span id="main-artist-name">{{ naat.naat_khawan.name }}</span></a>
+                {% if user.is_authenticated %}
+                    <button class="action-btn {% if is_favorite %}fav{% endif %}" id="main-fav-btn" onclick="tpToggleFav(tpPlaylist[tpIndex] ? tpPlaylist[tpIndex].id : {{ naat.id }});">
+                        <i class="{% if is_favorite %}fa-solid{% else %}fa-regular{% endif %} fa-star"></i>
+                        <div class="label">Favorite</div>
+                    </button>
+                {% else %}
+                    <a href="{% url 'login' %}" class="action-btn" style="opacity: 0.7;">
+                        <i class="fa-regular fa-star"></i>
+                        <div class="label">Favorite</div>
+                    </a>
+                {% endif %}
 
-        <!-- STATS & ACTION ROW -->
-        <div class="stats-row">
-            <div class="stat-box">
-                <i class="fa-solid fa-headphones"></i>
-                <div class="label">Views</div>
-                <div class="value" id="main-views-count">{{ naat.views|default:"0" }}</div> 
-            </div>
-            
-            <div class="stat-box">
-                <i class="fa-solid fa-calendar-days"></i>
-                <div class="label">Added</div>
-                <div class="value" id="main-date-added">{{ naat.uploaded_at|date:"M d, Y" }}</div>
-            </div>
-            
-            <div class="stat-box">
-                <i class="fa-solid fa-file-audio"></i>
-                <div class="label">Format</div>
-                <div class="value">MP3</div>
-            </div>
-
-            {% if user.is_authenticated %}
-                <button class="action-btn {% if is_favorite %}fav{% endif %}" id="main-fav-btn" onclick="tpToggleFav(tpPlaylist[tpIndex] ? tpPlaylist[tpIndex].id : {{ naat.id }});">
-                    <i class="{% if is_favorite %}fa-solid{% else %}fa-regular{% endif %} fa-star"></i>
-                    <div class="label">Favorite</div>
-                </button>
-            {% else %}
-                <a href="{% url 'login' %}" class="action-btn" style="opacity: 0.7;">
-                    <i class="fa-regular fa-star"></i>
-                    <div class="label">Favorite</div>
+                <a href="#" id="main-download-btn" class="action-btn">
+                    <i class="fa-solid fa-download"></i>
+                    <div class="label">Download</div>
                 </a>
-            {% endif %}
+            </div>
+        </div>
 
-            <a href="#" id="main-download-btn" class="action-btn">
-                <i class="fa-solid fa-download"></i>
-                <div class="label">Download</div>
-            </a>
+        <!-- 2. TOP PLAYER (Neeche) -->
+        <div class="top-player">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="tp-title" id="tp-title">No Naat Playing</div>
+                    <div class="tp-artist" id="tp-artist">Select a naat from list below</div>
+                </div>
+            </div>
+            
+            <div class="custom-audio-wrapper mb-3">
+                <span class="audio-time" id="tp-current">0:00</span>
+                <input type="range" id="tp-progress" class="audio-progress" value="0" min="0" max="100" step="0.1">
+                <span class="audio-time" id="tp-duration">0:00</span>
+            </div>
+
+            <!-- ICON BUTTONS -->
+            <div class="tp-controls d-flex justify-content-center gap-2">
+                <button type="button" class="btn btn-light rounded-circle" onclick="tpPrev()" title="Previous">
+                    <i class="fa-solid fa-backward-step text-success"></i>
+                </button>
+                <button type="button" class="btn btn-success rounded-circle" onclick="tpToggle()" id="tp-play-btn" title="Play / Pause">
+                    <i class="fa-solid fa-play"></i>
+                </button>
+                <button type="button" class="btn btn-light rounded-circle" onclick="tpNext()" title="Next">
+                    <i class="fa-solid fa-forward-step text-success"></i>
+                </button>
+                <button type="button" class="btn btn-light rounded-circle" onclick="tpCycleMode()" id="tp-shuffle-btn" title="Normal">
+                    <i class="fa-solid fa-shuffle text-success"></i>
+                </button>
+            </div>
+            <audio id="tp-audio" preload="none"></audio>
         </div>
     </div>
 
-    <!-- MORE NAATS LIST -->
+    <!-- MORE NAATS LIST (Sirf yeh scroll hoga) -->
     {% if related_naats %}
     <div class="related-section mb-5">
         <h4 class="related-title">More Naats by {{ naat.naat_khawan.name }}</h4>
@@ -225,7 +269,7 @@
     });
 
     let tpIndex = -1;
-    let tpShuffleOn = false;
+    let playMode = 0; // 0 = Normal, 1 = Repeat All, 2 = Repeat One, 3 = Shuffle
 
     const tpAudio = document.getElementById('tp-audio');
     const tpPlayBtn = document.getElementById('tp-play-btn');
@@ -234,6 +278,7 @@
     const tpProgress = document.getElementById('tp-progress');
     const tpCurrentEl = document.getElementById('tp-current');
     const tpDurationEl = document.getElementById('tp-duration');
+    const tpShuffleBtn = document.getElementById('tp-shuffle-btn');
 
     function tpFormat(sec) {
         if (!sec || !isFinite(sec)) return "0:00";
@@ -286,11 +331,11 @@
         }
 
         tpUpdateUI(song.id, true);
-        tpPlayBtn.innerText = 'Pause';
+        tpPlayBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
 
         tpAudio.play().catch(function (e) {
             console.log('Playback error:', e);
-            tpPlayBtn.innerText = 'Play';
+            tpPlayBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
             tpUpdateUI(song.id, false);
         });
 
@@ -314,40 +359,98 @@
         tpLoad(idx);
     }
 
+    // UPDATED TOGGLE (Play First Naat if empty)
     function tpToggle() {
-        if (tpIndex < 0) return;
+        if (tpIndex < 0) {
+            if (tpPlaylist.length > 0) {
+                tpLoad(0); // Pehli naat play karo
+            }
+            return;
+        }
+
         const id = tpPlaylist[tpIndex].id;
         if (tpAudio.paused) {
             tpAudio.play();
-            tpPlayBtn.innerText = 'Pause';
+            tpPlayBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
             tpUpdateUI(id, true);
         } else {
             tpAudio.pause();
-            tpPlayBtn.innerText = 'Play';
+            tpPlayBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
             tpUpdateUI(id, false);
+        }
+    }
+
+    // PLAYBACK MODE CYCLE LOGIC
+    function tpCycleMode() {
+        playMode = (playMode + 1) % 4;
+        
+        tpShuffleBtn.classList.remove('mode-active');
+        tpShuffleBtn.innerHTML = ''; 
+
+        if (playMode === 0) {
+            tpShuffleBtn.innerHTML = '<i class="fa-solid fa-shuffle text-success"></i>';
+            tpShuffleBtn.title = "Normal";
+        } 
+        else if (playMode === 1) {
+            tpShuffleBtn.innerHTML = '<i class="fa-solid fa-repeat text-success"></i>';
+            tpShuffleBtn.classList.add('mode-active');
+            tpShuffleBtn.title = "Repeat All";
+        } 
+        else if (playMode === 2) {
+            tpShuffleBtn.innerHTML = '<i class="fa-solid fa-repeat text-success"></i><span class="repeat-badge">1</span>';
+            tpShuffleBtn.classList.add('mode-active');
+            tpShuffleBtn.title = "Repeat One";
+        } 
+        else if (playMode === 3) {
+            tpShuffleBtn.innerHTML = '<i class="fa-solid fa-shuffle text-success"></i>';
+            tpShuffleBtn.classList.add('mode-active');
+            tpShuffleBtn.title = "Shuffle On";
         }
     }
 
     function tpNext() {
         if (tpPlaylist.length === 0) return;
-        const next = tpShuffleOn
-            ? Math.floor(Math.random() * tpPlaylist.length)
-            : (tpIndex + 1) % tpPlaylist.length;
-        tpLoad(next);
+        
+        if (playMode === 3) {
+            tpIndex = Math.floor(Math.random() * tpPlaylist.length);
+        } else {
+            tpIndex++;
+            if (tpIndex >= tpPlaylist.length) {
+                tpIndex = 0; 
+            }
+        }
+        tpLoad(tpIndex);
     }
 
     function tpPrev() {
         if (tpPlaylist.length === 0) return;
-        const prev = tpShuffleOn
-            ? Math.floor(Math.random() * tpPlaylist.length)
-            : (tpIndex - 1 + tpPlaylist.length) % tpPlaylist.length;
-        tpLoad(prev);
+        
+        if (playMode === 3) {
+            tpIndex = Math.floor(Math.random() * tpPlaylist.length);
+        } else {
+            tpIndex--;
+            if (tpIndex < 0) tpIndex = tpPlaylist.length - 1;
+        }
+        tpLoad(tpIndex);
     }
 
-    function tpShuffle() {
-        tpShuffleOn = !tpShuffleOn;
-        document.getElementById('tp-shuffle-btn').style.background = tpShuffleOn ? '#cbd5e1' : 'transparent';
-    }
+    // AUTO NEXT
+    tpAudio.addEventListener('ended', function() {
+        if (playMode === 2) {
+            tpAudio.currentTime = 0;
+            tpAudio.play();
+        } else if (playMode === 0) {
+            if (tpIndex === tpPlaylist.length - 1) {
+                tpAudio.pause();
+                tpPlayBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
+                tpUpdateUI(null, false);
+            } else {
+                tpNext();
+            }
+        } else {
+            tpNext();
+        }
+    });
 
     tpAudio.addEventListener('timeupdate', function () {
         if (tpAudio.duration) {
@@ -363,8 +466,6 @@
             if (d && isFinite(tpAudio.duration)) d.innerText = tpFormat(tpAudio.duration);
         }
     });
-
-    tpAudio.addEventListener('ended', tpNext);
 
     tpProgress.addEventListener('input', function () {
         if (tpAudio.duration) tpAudio.currentTime = (this.value / 100) * tpAudio.duration;
